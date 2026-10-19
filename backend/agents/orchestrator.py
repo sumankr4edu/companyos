@@ -1,54 +1,90 @@
-from typing import Any, Dict, List
+from __future__ import annotations
+
+from typing import Any, Dict, List, Optional
 
 from agents.query_planner import QueryPlanner
 from agents.cypher_generator import CypherGenerator
 from agents.analysis_agent import AnalysisAgent
 from agents.graph_intelligence_agent import GraphIntelligenceAgent
+from agents.explainability import ExplainabilityAgent
+from agents.hero_reasoning import HeroReasoningAgent
+from agents.action_agent import ActionAgent
+from agents.contradiction_agent import ContradictionAgent
+from agents.freshness_agent import FreshnessAgent
 
+from memory.conversation_store import ConversationStore
 from memory.memory_agent import MemoryAgent
+
 from graph.evidence import EvidenceManager
 from graph.path_engine import GraphPathEngine
 
 from tools.query_tools import GraphQueryTool
-from agents.explainability import ExplainabilityAgent
-from agents.hero_reasoning import HeroReasoningAgent
+
+# Phase 25
+from mcp.tool_agent import GraphToolAgent
 
 
 class Orchestrator:
     """
-    Graph-first CompanyOS orchestrator.
+    CompanyOS Graph-First Orchestrator.
 
     Architecture:
 
         User Question
-             ↓
+              |
+              v
         Query Planner
-             ↓
+              |
+              v
         Intent Detection
-             ↓
-        ┌──────────────────────────────┐
-        │ Specialized graph intent?    │
-        │                              │
-        │ YES → Graph Intelligence     │
-        │ NO  → Controlled Cypher      │
-        └──────────────────────────────┘
-             ↓
-        FalkorDB
-             ↓
-        Exact Graph Path
-             ↓
-        Evidence + Explainability
-             ↓
-        Persistent Memory
-             ↓
-        Gemini Analysis
-             ↓
-        Auditable Answer
+              |
+        +-----+----------------------+
+        |                            |
+        v                            v
+    Specialized                 Controlled
+    Graph Intent                Cypher
+        |                            |
+        v                            v
+    Graph Intelligence         Graph Query Tool
+        |                            |
+        +-------------+--------------+
+                      |
+                      v
+                  FalkorDB
+                      |
+                      v
+             Evidence Normalization
+                      |
+             +--------+---------+
+             |                  |
+             v                  v
+       Contradiction        Freshness
+       Detection            Analysis
+             |                  |
+             +--------+---------+
+                      |
+                      v
+                Graph Path
+                      |
+                      v
+              Gemini Analysis
+                      |
+                      v
+             Persistent Memory
+                      |
+                      v
+              Auditable Answer
 
-    FalkorDB is the primary context layer.
+    Phase 25:
+        MCP-style FalkorDB graph tools are exposed through
+        GraphToolAgent.
 
-    The LLM never directly queries FalkorDB.
+    FalkorDB remains the primary source of truth.
     """
+
+    # =========================================================
+    # Specialized Graph Intents
+    # =========================================================
 
     SPECIALIZED_INTENTS = {
         "ownership_expertise",
@@ -58,54 +94,92 @@ class Orchestrator:
         "connected_component",
     }
 
+    # =========================================================
+    # Initialization
+    # =========================================================
+
     def __init__(
         self,
         graph_name: str = "novatech",
     ):
         self.graph_name = graph_name
 
-        # =====================================================
-        # Core agents
-        # =====================================================
+        # -----------------------------------------------------
+        # Query / reasoning agents
+        # -----------------------------------------------------
 
         self.planner = QueryPlanner()
 
-        self.graph_intelligence = GraphIntelligenceAgent(
-            graph_name=graph_name
+        self.cypher_generator = CypherGenerator(
+            graph_name=graph_name,
         )
 
-        self.path_engine = GraphPathEngine(
-            graph_name=graph_name
+        self.analysis_agent = AnalysisAgent()
+
+        self.graph_intelligence = GraphIntelligenceAgent(
+            graph_name=graph_name,
         )
 
         self.explainability = ExplainabilityAgent()
 
         self.hero_reasoning_agent = HeroReasoningAgent(
-            graph_name=graph_name
+            graph_name=graph_name,
         )
 
-        self.cypher_generator = CypherGenerator(
-            graph_name=graph_name
+        self.action_agent = ActionAgent(
+            graph_name=graph_name,
         )
+
+        # -----------------------------------------------------
+        # Phase 24
+        # -----------------------------------------------------
+
+        self.contradiction_agent = ContradictionAgent()
+
+        self.freshness_agent = FreshnessAgent(
+            stale_after_days=180,
+        )
+
+        # -----------------------------------------------------
+        # Graph infrastructure
+        # -----------------------------------------------------
 
         self.graph_query = GraphQueryTool(
-            graph_name=graph_name
+            graph_name=graph_name,
         )
 
-        self.memory_agent = MemoryAgent(
-            graph_name=graph_name
+        self.path_engine = GraphPathEngine(
+            graph_name=graph_name,
         )
 
         self.evidence_manager = EvidenceManager()
 
-        self.analysis_agent = AnalysisAgent()
+        # -----------------------------------------------------
+        # Phase 22
+        # -----------------------------------------------------
+
+        self.conversation_store = ConversationStore(
+            graph_name=graph_name,
+        )
+
+        self.memory_agent = MemoryAgent(
+            graph_name=graph_name,
+        )
+
+        # -----------------------------------------------------
+        # Phase 25
+        # -----------------------------------------------------
+
+        self.mcp_tools = GraphToolAgent(
+            graph_name=graph_name,
+        )
 
     # =========================================================
-    # Helpers
+    # Entity normalization
     # =========================================================
 
+    @staticmethod
     def _entity_list(
-        self,
         entities: Any,
     ) -> List[str]:
 
@@ -113,6 +187,7 @@ class Orchestrator:
             return []
 
         if isinstance(entities, list):
+
             return [
                 str(item)
                 for item in entities
@@ -120,6 +195,7 @@ class Orchestrator:
             ]
 
         if isinstance(entities, tuple):
+
             return [
                 str(item)
                 for item in entities
@@ -127,6 +203,7 @@ class Orchestrator:
             ]
 
         if isinstance(entities, dict):
+
             return [
                 str(value)
                 for value in entities.values()
@@ -134,10 +211,13 @@ class Orchestrator:
             ]
 
         if isinstance(entities, str):
+
             return [entities]
 
         return [str(entities)]
 
+    # =========================================================
+    # Evidence normalization
     # =========================================================
 
     def _extract_records(
@@ -148,7 +228,10 @@ class Orchestrator:
         if evidence is None:
             return []
 
-        # Already a list
+        # -----------------------------------------------------
+        # Already normalized list
+        # -----------------------------------------------------
+
         if isinstance(evidence, list):
 
             if all(
@@ -159,18 +242,81 @@ class Orchestrator:
 
             return [
                 {
-                    "value": item
+                    "value": item,
                 }
                 for item in evidence
             ]
 
-        # Unexpected object
-        if not isinstance(evidence, dict):
+        # -----------------------------------------------------
+        # Primitive value
+        # -----------------------------------------------------
+
+        if not isinstance(
+            evidence,
+            dict,
+        ):
+
             return [
                 {
-                    "value": evidence
+                    "value": evidence,
                 }
             ]
+
+        # -----------------------------------------------------
+        # Nested FalkorDB result
+        # -----------------------------------------------------
+
+        nested_result = evidence.get(
+            "result"
+        )
+
+        if isinstance(
+            nested_result,
+            dict,
+        ):
+
+            if isinstance(
+                nested_result.get("rows"),
+                list,
+            ):
+
+                return self._extract_records(
+                    nested_result
+                )
+
+        # -----------------------------------------------------
+        # Already normalized records
+        # -----------------------------------------------------
+
+        for key in (
+            "records",
+            "results",
+            "data",
+            "evidence",
+        ):
+
+            candidate = evidence.get(
+                key
+            )
+
+            if isinstance(
+                candidate,
+                list,
+            ):
+
+                if all(
+                    isinstance(
+                        item,
+                        dict,
+                    )
+                    for item in candidate
+                ):
+
+                    return candidate
+
+        # -----------------------------------------------------
+        # FalkorDB tabular response
+        # -----------------------------------------------------
 
         header = evidence.get(
             "header",
@@ -182,11 +328,7 @@ class Orchestrator:
             [],
         )
 
-        # =====================================================
-        # Clean FalkorDB headers
-        # =====================================================
-
-        clean_headers = []
+        clean_headers: List[str] = []
 
         for item in header:
 
@@ -195,60 +337,92 @@ class Orchestrator:
             if "'" in text:
 
                 try:
+
                     clean_headers.append(
                         text.split("'")[1]
                     )
 
                 except Exception:
+
                     clean_headers.append(
                         text
                     )
 
             else:
+
                 clean_headers.append(
                     text
                 )
 
-        # =====================================================
-        # Rows → dictionaries
-        # =====================================================
-
-        records = []
+        records: List[
+            Dict[str, Any]
+        ] = []
 
         for row in rows:
 
-            record = {}
+            if not isinstance(
+                row,
+                (list, tuple),
+            ):
+
+                row = [row]
+
+            record: Dict[str, Any] = {}
 
             for index, value in enumerate(row):
 
-                if index < len(clean_headers):
-                    key = clean_headers[index]
+                if index < len(
+                    clean_headers
+                ):
+
+                    key = clean_headers[
+                        index
+                    ]
+
                 else:
-                    key = f"column_{index}"
+
+                    key = (
+                        f"column_{index}"
+                    )
 
                 record[key] = value
 
-            records.append(record)
+            records.append(
+                record
+            )
 
         return records
 
     # =========================================================
+    # Plan formatting
+    # =========================================================
 
+    @staticmethod
     def _format_plan(
-        self,
         plan: Any,
     ) -> Dict[str, Any]:
 
-        if hasattr(plan, "__dict__"):
-            return dict(plan.__dict__)
-
-        if isinstance(plan, dict):
+        if isinstance(
+            plan,
+            dict,
+        ):
             return plan
+
+        if hasattr(
+            plan,
+            "__dict__",
+        ):
+
+            return dict(
+                plan.__dict__
+            )
 
         return {
             "plan": str(plan)
         }
 
+    # =========================================================
+    # Intent
     # =========================================================
 
     def _is_specialized_intent(
@@ -261,6 +435,8 @@ class Orchestrator:
             in self.SPECIALIZED_INTENTS
         )
 
+    # =========================================================
+    # Specialized Graph Intelligence
     # =========================================================
 
     def _run_specialized_graph_intelligence(
@@ -276,16 +452,17 @@ class Orchestrator:
                 )
             )
 
-            if not isinstance(
+            if isinstance(
                 result,
                 dict,
             ):
-                return {
-                    "success": True,
-                    "result": result,
-                }
 
-            return result
+                return result
+
+            return {
+                "success": True,
+                "result": result,
+            }
 
         except Exception as exc:
 
@@ -295,7 +472,7 @@ class Orchestrator:
             }
 
     # =========================================================
-    # Hero Detection
+    # Hero Investigation Detection
     # =========================================================
 
     @staticmethod
@@ -303,7 +480,7 @@ class Orchestrator:
         question: str,
     ) -> bool:
 
-        question_lower = question.lower()
+        text = question.lower()
 
         hero_terms = [
             "checkout failures increased",
@@ -312,10 +489,11 @@ class Orchestrator:
             "who worked on the affected system",
             "who should investigate",
             "why was the architecture changed",
+            "why was payment architecture changed",
         ]
 
         return any(
-            term in question_lower
+            term in text
             for term in hero_terms
         )
 
@@ -328,22 +506,27 @@ class Orchestrator:
         question: str,
         entities: List[str],
     ) -> Dict[str, Any]:
-        """
-        Build an auditable graph path.
-
-        Hero investigations use the deterministic semantic resolver.
-
-        Other questions use normal graph exploration.
-        """
 
         try:
+
+            # -------------------------------------------------
+            # Hero path
+            # -------------------------------------------------
 
             if self._is_hero_investigation(
                 question
             ):
-                return self.path_engine.hero_path()
+
+                return (
+                    self.path_engine.hero_path()
+                )
+
+            # -------------------------------------------------
+            # Generic graph exploration
+            # -------------------------------------------------
 
             if not entities:
+
                 return {
                     "success": False,
                     "evidence": [],
@@ -355,24 +538,54 @@ class Orchestrator:
                     "unknowns": [],
                 }
 
-            paths = self.path_engine.explore(
-                entity_name=entities[0],
-                max_hops=4,
-                limit=20,
+            result = (
+                self.path_engine.explore(
+                    entity_name=entities[0],
+                    max_hops=4,
+                    limit=20,
+                )
             )
 
+            if isinstance(
+                result,
+                dict,
+            ):
+
+                return result
+
+            if isinstance(
+                result,
+                list,
+            ):
+
+                return {
+                    "success": bool(
+                        result
+                    ),
+                    "evidence": [],
+                    "branches": result,
+                    "nodes": [],
+                    "relationships": [],
+                    "path_count": len(
+                        result
+                    ),
+                    "confidence": 0.0,
+                    "unknowns": [],
+                }
+
             return {
-                "success": bool(paths),
+                "success": False,
                 "evidence": [],
-                "branches": paths,
+                "branches": [],
                 "nodes": [],
                 "relationships": [],
-                "path_count": len(paths),
+                "path_count": 0,
                 "confidence": 0.0,
                 "unknowns": [],
             }
 
         except Exception:
+
             return {
                 "success": False,
                 "evidence": [],
@@ -385,13 +598,172 @@ class Orchestrator:
             }
 
     # =========================================================
-    # MAIN
+    # Conversation History
+    # =========================================================
+
+    def _load_conversation_history(
+        self,
+        session_id: Optional[str],
+        user_id: str,
+        limit: int = 10,
+    ) -> List[Dict[str, Any]]:
+
+        if not session_id:
+            return []
+
+        try:
+
+            return (
+                self.conversation_store.get_history(
+                    session_id=session_id,
+                    user_id=user_id,
+                    limit=limit,
+                )
+            )
+
+        except Exception:
+
+            return []
+
+    # =========================================================
+    # Conversation Context
+    # =========================================================
+
+    @staticmethod
+    def _conversation_context(
+        history: List[Dict[str, Any]],
+    ) -> List[Dict[str, Any]]:
+
+        context: List[
+            Dict[str, Any]
+        ] = []
+
+        for message in history:
+
+            if not isinstance(
+                message,
+                dict,
+            ):
+                continue
+
+            context.append(
+                {
+                    "role": message.get(
+                        "role"
+                    ),
+                    "content": message.get(
+                        "content"
+                    ),
+                    "created_at": message.get(
+                        "created_at"
+                    ),
+                    "confidence": message.get(
+                        "confidence"
+                    ),
+                    "graph_first": message.get(
+                        "graph_first"
+                    ),
+                }
+            )
+
+        return context
+
+    # =========================================================
+    # Contradiction merge
+    # =========================================================
+
+    @staticmethod
+    def _merge_contradictions(
+        evidence_contradictions: Any,
+        graph_contradictions: Any,
+    ) -> List[Dict[str, Any]]:
+
+        merged: List[
+            Dict[str, Any]
+        ] = []
+
+        candidates: List[Any] = []
+
+        if isinstance(
+            evidence_contradictions,
+            list,
+        ):
+
+            candidates.extend(
+                evidence_contradictions
+            )
+
+        if isinstance(
+            graph_contradictions,
+            list,
+        ):
+
+            candidates.extend(
+                graph_contradictions
+            )
+
+        for item in candidates:
+
+            if not isinstance(
+                item,
+                dict,
+            ):
+                continue
+
+            if item not in merged:
+
+                merged.append(
+                    item
+                )
+
+        return merged
+
+    # =========================================================
+    # MCP Tool Selection
+    # =========================================================
+
+    def _select_mcp_tool(
+        self,
+        question: str,
+        entities: List[str],
+    ) -> Dict[str, Any]:
+
+        try:
+
+            return (
+                self.mcp_tools.select_tool(
+                    question=question,
+                    entity_name=(
+                        entities[0]
+                        if entities
+                        else None
+                    ),
+                )
+            )
+
+        except Exception as exc:
+
+            return {
+                "tool": "falkor_cypher",
+                "reason": (
+                    "MCP tool selection "
+                    f"failed: {exc}"
+                ),
+            }
+
+    # =========================================================
+    # MAIN RUN
     # =========================================================
 
     def run(
         self,
         question: str,
         user_id: str = "suman",
+        session_id: Optional[str] = None,
+        conversation_id: Optional[str] = None,
+        memory_context: Optional[
+            Dict[str, Any]
+        ] = None,
     ) -> Dict[str, Any]:
 
         # =====================================================
@@ -399,6 +771,7 @@ class Orchestrator:
         # =====================================================
 
         if not question or not question.strip():
+
             raise ValueError(
                 "Question cannot be empty."
             )
@@ -406,20 +779,42 @@ class Orchestrator:
         question = question.strip()
 
         # =====================================================
-        # 2. Query planning
+        # 2. Conversation Context
+        # =====================================================
+
+        conversation_history = (
+            self._load_conversation_history(
+                session_id=session_id,
+                user_id=user_id,
+                limit=10,
+            )
+        )
+
+        conversation_context = (
+            self._conversation_context(
+                conversation_history
+            )
+        )
+
+        # =====================================================
+        # 3. Query Planning
         # =====================================================
 
         plan = self.planner.plan(
             question
         )
 
-        plan_data = self._format_plan(
-            plan
+        plan_data = (
+            self._format_plan(
+                plan
+            )
         )
 
-        entities = self._entity_list(
-            plan_data.get(
-                "entities"
+        entities = (
+            self._entity_list(
+                plan_data.get(
+                    "entities"
+                )
             )
         )
 
@@ -429,17 +824,31 @@ class Orchestrator:
         )
 
         # =====================================================
-        # 3. GRAPH RETRIEVAL
+        # 4. Phase 25 MCP Tool Selection
         # =====================================================
 
-        graph_intelligence = {}
-
-        graph_evidence_raw = None
-
-        cypher = None
+        mcp_selection = (
+            self._select_mcp_tool(
+                question=question,
+                entities=entities,
+            )
+        )
 
         # =====================================================
-        # Specialized graph algorithm
+        # 5. Graph Retrieval
+        # =====================================================
+
+        graph_intelligence: Dict[
+            str,
+            Any,
+        ] = {}
+
+        graph_evidence_raw: Any = None
+
+        cypher: Optional[str] = None
+
+        # =====================================================
+        # 5A. Specialized Graph Intelligence
         # =====================================================
 
         if self._is_specialized_intent(
@@ -459,12 +868,21 @@ class Orchestrator:
 
                 graph_evidence_raw = (
                     graph_intelligence.get(
-                        "result",
-                        graph_intelligence.get(
-                            "evidence",
-                            [],
-                        ),
+                        "result"
                     )
+                    or graph_intelligence.get(
+                        "evidence"
+                    )
+                    or graph_intelligence.get(
+                        "data"
+                    )
+                    or graph_intelligence.get(
+                        "rows"
+                    )
+                    or graph_intelligence.get(
+                        "results"
+                    )
+                    or []
                 )
 
             else:
@@ -473,8 +891,51 @@ class Orchestrator:
                     graph_intelligence
                 )
 
+            # -------------------------------------------------
+            # Unwrap nested FalkorDB result
+            # -------------------------------------------------
+
+            if isinstance(
+                graph_evidence_raw,
+                dict,
+            ):
+
+                nested_result = (
+                    graph_evidence_raw.get(
+                        "result"
+                    )
+                )
+
+                if (
+                    isinstance(
+                        nested_result,
+                        dict,
+                    )
+                    and isinstance(
+                        nested_result.get(
+                            "rows"
+                        ),
+                        list,
+                    )
+                ):
+
+                    graph_evidence_raw = (
+                        nested_result
+                    )
+
+                elif isinstance(
+                    graph_evidence_raw.get(
+                        "rows"
+                    ),
+                    list,
+                ):
+
+                    graph_evidence_raw = (
+                        graph_evidence_raw
+                    )
+
         # =====================================================
-        # Standard Cypher
+        # 5B. Controlled Cypher
         # =====================================================
 
         else:
@@ -492,16 +953,18 @@ class Orchestrator:
             )
 
         # =====================================================
-        # 4. Normalize graph evidence
+        # 6. Normalize Graph Evidence
         # =====================================================
 
-        records = self._extract_records(
-            graph_evidence_raw
+        records = (
+            self._extract_records(
+                graph_evidence_raw
+            )
         )
 
-        # =====================================================
-        # Fallback extraction
-        # =====================================================
+        # -----------------------------------------------------
+        # Fallback
+        # -----------------------------------------------------
 
         if (
             not records
@@ -511,26 +974,22 @@ class Orchestrator:
             )
         ):
 
-            possible_values = [
-
+            candidates = [
                 graph_intelligence.get(
                     "rows"
                 ),
-
                 graph_intelligence.get(
                     "data"
                 ),
-
                 graph_intelligence.get(
                     "results"
                 ),
-
                 graph_intelligence.get(
                     "evidence"
                 ),
             ]
 
-            for candidate in possible_values:
+            for candidate in candidates:
 
                 if candidate:
 
@@ -544,7 +1003,7 @@ class Orchestrator:
                         break
 
         # =====================================================
-        # 5. Evidence processing
+        # 7. Evidence Processing
         # =====================================================
 
         evidence_result = (
@@ -560,7 +1019,7 @@ class Orchestrator:
             )
         )
 
-        contradictions = (
+        evidence_contradictions = (
             evidence_result.get(
                 "contradictions",
                 [],
@@ -568,7 +1027,24 @@ class Orchestrator:
         )
 
         # =====================================================
-        # 6. Persistent memory
+        # 8. Phase 24 Contradiction Detection
+        # =====================================================
+
+        graph_contradictions = (
+            self.contradiction_agent.detect(
+                records
+            )
+        )
+
+        contradictions = (
+            self._merge_contradictions(
+                evidence_contradictions,
+                graph_contradictions,
+            )
+        )
+
+        # =====================================================
+        # 9. Semantic Memory
         # =====================================================
 
         memory = []
@@ -583,20 +1059,24 @@ class Orchestrator:
             )
 
             if memory_result:
-                memory = memory_result
+
+                memory = (
+                    memory_result
+                )
 
         except Exception:
+
             memory = []
 
         # =====================================================
-        # 7. Provenance / freshness
+        # 10. Provenance
         # =====================================================
 
         provenance = []
 
-        freshness = []
-
-        for record in processed_evidence:
+        for record in (
+            processed_evidence
+        ):
 
             if not isinstance(
                 record,
@@ -614,46 +1094,55 @@ class Orchestrator:
                     )
                 )
 
-            if record.get(
-                "freshness"
-            ) is not None:
-
-                freshness.append(
-                    record.get(
-                        "freshness"
-                    )
-                )
-
         # =====================================================
-        # 8. EXACT GRAPH PATH
+        # 11. Phase 24 Freshness
         # =====================================================
 
-        graph_path = self._build_graph_path(
-            question=question,
-            entities=entities,
+        freshness = (
+            self.freshness_agent.analyze(
+                records
+            )
         )
 
         # =====================================================
-        # 9. INITIAL EXPLAINABILITY
+        # 12. Exact Graph Path
         # =====================================================
 
-        if graph_path.get("evidence"):
+        graph_path = (
+            self._build_graph_path(
+                question=question,
+                entities=entities,
+            )
+        )
 
-            explanation = self.explainability.build(
-                answer="",
-                graph_result=graph_path,
-                contradictions=contradictions,
+        # =====================================================
+        # 13. Explainability
+        # =====================================================
+
+        try:
+
+            explanation = (
+                self.explainability.build(
+                    answer="",
+                    graph_result=graph_path,
+                    contradictions=(
+                        contradictions
+                    ),
+                )
             )
 
-        else:
+        except Exception:
 
-            explanation = self.explainability.empty(
-                answer="",
-                reason=(
-                    "No deterministic graph-path "
-                    "evidence was found."
+            explanation = {
+                "answer": "",
+                "evidence": [],
+                "graph_path": graph_path,
+                "confidence": 0.0,
+                "contradictions": (
+                    contradictions
                 ),
-            )
+                "unknowns": [],
+            }
 
         confidence = explanation.get(
             "confidence",
@@ -661,43 +1150,68 @@ class Orchestrator:
         )
 
         # =====================================================
-        # 10. HERO INVESTIGATION
+        # 14. Hero Investigation
         # =====================================================
 
-        is_hero = self._is_hero_investigation(
-            question
+        is_hero = (
+            self._is_hero_investigation(
+                question
+            )
         )
 
         if is_hero:
 
-            hero_result = (
-                self.hero_reasoning_agent.execute()
-            )
+            try:
 
-            if hero_result.get("success"):
-
-                graph_path = (
-                    hero_result["graph"]
+                hero_result = (
+                    self.hero_reasoning_agent.execute()
                 )
 
-                explanation = (
-                    self.explainability.build(
-                        answer=hero_result.get(
-                            "answer",
-                            "",
-                        ),
-                        graph_result=graph_path,
-                        contradictions=contradictions,
+                if (
+                    isinstance(
+                        hero_result,
+                        dict,
                     )
-                )
+                    and hero_result.get(
+                        "success"
+                    )
+                ):
 
-                confidence = explanation.get(
-                    "confidence",
-                    0.0,
-                )
+                    graph_path = (
+                        hero_result.get(
+                            "graph",
+                            graph_path,
+                        )
+                    )
+
+                    explanation = (
+                        self.explainability.build(
+                            answer=hero_result.get(
+                                "answer",
+                                "",
+                            ),
+                            graph_result=(
+                                graph_path
+                            ),
+                            contradictions=(
+                                contradictions
+                            ),
+                        )
+                    )
+
+                    confidence = (
+                        explanation.get(
+                            "confidence",
+                            0.0,
+                        )
+                    )
+
+            except Exception:
+
+                pass
 
         # =====================================================
-        # 11. Retrieval mode
+        # 15. Retrieval Mode
         # =====================================================
 
         if self._is_specialized_intent(
@@ -715,7 +1229,7 @@ class Orchestrator:
             )
 
         # =====================================================
-        # 12. GRAPH-FIRST CONTEXT
+        # 16. Graph Context For Gemini
         # =====================================================
 
         graph_context = {
@@ -728,32 +1242,51 @@ class Orchestrator:
 
             "cypher": cypher,
 
-            # PRIMARY SOURCE
+            # Primary FalkorDB evidence
             "graph_evidence": (
                 processed_evidence
             ),
 
-            # Graph algorithm result
+            # Normalized raw graph records
+            "graph_records": records,
+
+            # Graph algorithms
             "graph_intelligence": (
                 graph_intelligence
             ),
 
-            # EXACT MULTI-HOP PATH
+            # Exact path
             "graph_path": graph_path,
 
             # Explainability
             "explanation": explanation,
 
-            # Memory
+            # Semantic memory
             "memory": memory,
+
+            # Conversation memory
+            "conversation_history": (
+                conversation_context
+            ),
+
+            "conversation_memory": (
+                bool(
+                    conversation_context
+                )
+            ),
+
+            # External memory context
+            "memory_context": (
+                memory_context
+            ),
 
             # Provenance
             "provenance": provenance,
 
-            # Freshness
+            # Phase 24
             "freshness": freshness,
 
-            # Contradictions
+            # Phase 24
             "contradictions": (
                 contradictions
             ),
@@ -774,11 +1307,36 @@ class Orchestrator:
                 retrieval_mode
             ),
 
-            "hero_investigation": is_hero,
+            # Phase 25
+            "mcp": {
+                "enabled": True,
+                "selected_tool": (
+                    mcp_selection.get(
+                        "tool"
+                    )
+                ),
+                "reason": (
+                    mcp_selection.get(
+                        "reason"
+                    )
+                ),
+            },
+
+            "hero_investigation": (
+                is_hero
+            ),
+
+            "session_id": (
+                session_id
+            ),
+
+            "conversation_id": (
+                conversation_id
+            ),
         }
 
         # =====================================================
-        # 13. Gemini reasoning
+        # 17. Gemini Analysis
         # =====================================================
 
         answer = (
@@ -789,7 +1347,7 @@ class Orchestrator:
         )
 
         # =====================================================
-        # 14. Store episodic memory
+        # 18. Persistent Episodic Memory
         # =====================================================
 
         try:
@@ -797,6 +1355,11 @@ class Orchestrator:
             answer_text = str(
                 answer
             )
+
+            # -------------------------------------------------
+            # Keep memory concise.
+            # Never store private chain-of-thought.
+            # -------------------------------------------------
 
             self.memory_agent.store(
 
@@ -831,14 +1394,89 @@ class Orchestrator:
                     "confidence": (
                         confidence
                     ),
+
+                    "session_id": (
+                        session_id
+                    ),
+
+                    "conversation_id": (
+                        conversation_id
+                    ),
+
+                    "mcp_tool": (
+                        mcp_selection.get(
+                            "tool"
+                        )
+                    ),
+
+                    "contradiction_count": (
+                        len(
+                            contradictions
+                        )
+                    ),
+
+                    "stale_record_count": (
+                        len(
+                            freshness.get(
+                                "stale_records",
+                                [],
+                            )
+                        )
+                        if isinstance(
+                            freshness,
+                            dict,
+                        )
+                        else 0
+                    ),
                 },
             )
 
         except Exception:
+
+            # Memory failures should never
+            # break the main graph answer.
             pass
 
         # =====================================================
-        # 15. FINAL AUDITABLE RESULT
+        # 19. MCP Metadata
+        # =====================================================
+
+        try:
+
+            available_tools = [
+                tool["name"]
+                for tool in (
+                    self.mcp_tools.list_tools()
+                )
+            ]
+
+        except Exception:
+
+            available_tools = []
+
+        mcp_metadata = {
+
+            "enabled": True,
+
+            "selected_tool": (
+                mcp_selection.get(
+                    "tool"
+                )
+            ),
+
+            "reason": (
+                mcp_selection.get(
+                    "reason"
+                )
+            ),
+
+            "available_tools": (
+                available_tools
+            ),
+        }
+
+        # =====================================================
+        # 20. FINAL AUDITABLE RESULT
         # =====================================================
 
         return {
@@ -849,11 +1487,19 @@ class Orchestrator:
 
             "answer": answer,
 
+            # -------------------------------------------------
+            # Planning
+            # -------------------------------------------------
+
             "plan": plan_data,
+
+            "entities": entities,
 
             "cypher": cypher,
 
-            "entities": entities,
+            # -------------------------------------------------
+            # Graph
+            # -------------------------------------------------
 
             "graph_name": (
                 self.graph_name
@@ -863,6 +1509,8 @@ class Orchestrator:
                 processed_evidence
             ),
 
+            "graph_records": records,
+
             "graph_intelligence": (
                 graph_intelligence
             ),
@@ -871,18 +1519,12 @@ class Orchestrator:
                 graph_path
             ),
 
+            # -------------------------------------------------
+            # Explainability
+            # -------------------------------------------------
+
             "explanation": (
                 explanation
-            ),
-
-            "memory": memory,
-
-            "provenance": provenance,
-
-            "freshness": freshness,
-
-            "contradictions": (
-                contradictions
             ),
 
             "confidence": confidence,
@@ -891,11 +1533,63 @@ class Orchestrator:
                 processed_evidence
             ),
 
+            # -------------------------------------------------
+            # Memory
+            # -------------------------------------------------
+
+            "memory": memory,
+
+            "session_id": (
+                session_id
+            ),
+
+            "conversation_id": (
+                conversation_id
+            ),
+
+            "conversation_history": (
+                conversation_context
+            ),
+
+            "conversation_memory": (
+                bool(
+                    conversation_context
+                )
+            ),
+
+            # -------------------------------------------------
+            # Provenance
+            # -------------------------------------------------
+
+            "provenance": provenance,
+
+            # -------------------------------------------------
+            # Phase 24
+            # -------------------------------------------------
+
+            "freshness": freshness,
+
+            "contradictions": (
+                contradictions
+            ),
+
+            # -------------------------------------------------
+            # Phase 25
+            # -------------------------------------------------
+
+            "mcp": mcp_metadata,
+
+            # -------------------------------------------------
+            # Retrieval
+            # -------------------------------------------------
+
             "retrieval_mode": (
                 retrieval_mode
             ),
 
             "graph_first": True,
 
-            "hero_investigation": is_hero,
+            "hero_investigation": (
+                is_hero
+            ),
         }

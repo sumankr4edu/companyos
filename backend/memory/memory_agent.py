@@ -1,206 +1,200 @@
-from datetime import datetime, timezone
+from __future__ import annotations
 
-from graph.queries import run_cypher
+from typing import Any, Dict, List, Optional
+
+from memory.conversation_store import ConversationStore
 
 
 class MemoryAgent:
     """
-    Persistent CompanyOS memory stored in FalkorDB.
+    CompanyOS persistent memory agent.
 
-    Memory types:
-    - episodic: what happened during previous interactions
-    - semantic: facts learned about the company
-    - procedural: how a task/process should be performed
+    Phase 22 responsibilities:
+
+    - Create conversations
+    - Maintain conversation state
+    - Persist turns in FalkorDB
+    - Search previous investigations
+    - Build memory context for the orchestrator
+    - Retrieve recent turns
+    - Delete conversations
     """
 
-    def __init__(self, graph_name: str = "novatech"):
+    def __init__(
+        self,
+        graph_name: str = "novatech",
+    ):
         self.graph_name = graph_name
 
-    def remember(
+        self.store = ConversationStore(
+            graph_name=graph_name
+        )
+
+    # ========================================================
+    # Conversation
+    # ========================================================
+
+    def create_conversation(
         self,
-        content: str,
-        memory_type: str = "episodic",
-        entity_name: str | None = None,
-        importance: float = 0.5,
-    ):
-        """
-        Store a memory in FalkorDB and optionally connect it
-        to an existing company entity.
-        """
+        user_id: str,
+        title: str = "New Investigation",
+    ) -> Dict[str, Any]:
 
-        if memory_type not in {
-            "episodic",
-            "semantic",
-            "procedural",
-        }:
-            raise ValueError(
-                "memory_type must be episodic, semantic, or procedural"
-            )
-
-        if not 0 <= importance <= 1:
-            raise ValueError(
-                "importance must be between 0 and 1"
-            )
-
-        safe_content = content.replace("'", "\\'")
-
-        safe_entity = (
-            entity_name.replace("'", "\\'")
-            if entity_name
-            else None
+        return self.store.create_conversation(
+            user_id=user_id,
+            title=title,
         )
 
-        timestamp = datetime.now(timezone.utc).isoformat()
+    def ensure_conversation(
+        self,
+        conversation_id: str,
+        user_id: str,
+        title: str = "New Investigation",
+    ) -> Dict[str, Any]:
 
-        memory_id = f"memory-{timestamp}"
-
-        # ---------------------------------------------------------
-        # CASE 1: Memory without an entity relationship
-        # ---------------------------------------------------------
-        if not safe_entity:
-            query = f"""
-            CREATE (m:Memory {{
-                id: '{memory_id}',
-                content: '{safe_content}',
-                memory_type: '{memory_type}',
-                importance: {importance},
-                created_at: '{timestamp}'
-            }})
-
-            RETURN
-                m.id AS id,
-                m.content AS content,
-                m.memory_type AS memory_type,
-                m.importance AS importance,
-                m.created_at AS created_at
-            """
-
-            return run_cypher(
-                query,
-                self.graph_name,
-            )
-
-        # ---------------------------------------------------------
-        # CASE 2: Memory connected to an existing entity
-        # ---------------------------------------------------------
-        query = f"""
-        MATCH (entity)
-        WHERE entity.name = '{safe_entity}'
-
-        CREATE (m:Memory {{
-            id: '{memory_id}',
-            content: '{safe_content}',
-            memory_type: '{memory_type}',
-            importance: {importance},
-            created_at: '{timestamp}'
-        }})
-
-        CREATE (m)-[:ABOUT]->(entity)
-
-        RETURN
-            m.id AS id,
-            m.content AS content,
-            m.memory_type AS memory_type,
-            m.importance AS importance,
-            m.created_at AS created_at,
-            entity.name AS entity
-        """
-
-        return run_cypher(
-            query,
-            self.graph_name,
+        return self.store.ensure_conversation(
+            conversation_id=conversation_id,
+            user_id=user_id,
+            title=title,
         )
+
+    def get_conversation(
+        self,
+        conversation_id: str,
+        user_id: str,
+        include_turns: bool = True,
+    ) -> Optional[Dict[str, Any]]:
+
+        return self.store.get_conversation(
+            conversation_id=conversation_id,
+            user_id=user_id,
+            include_turns=include_turns,
+        )
+
+    def list_conversations(
+        self,
+        user_id: str,
+        limit: int = 20,
+    ) -> List[Dict[str, Any]]:
+
+        return self.store.list_conversations(
+            user_id=user_id,
+            limit=limit,
+        )
+
+    # ========================================================
+    # Turns
+    # ========================================================
+
+    def save_turn(
+        self,
+        conversation_id: str,
+        user_id: str,
+        question: str,
+        answer: str,
+        plan: Optional[Dict[str, Any]] = None,
+        entities: Optional[List[Any]] = None,
+        graph_path: Optional[Dict[str, Any]] = None,
+        evidence_count: int = 0,
+        confidence: float = 0.0,
+        retrieval_mode: str = "graph_first",
+    ) -> Dict[str, Any]:
+
+        return self.store.save_turn(
+            conversation_id=conversation_id,
+            user_id=user_id,
+            question=question,
+            answer=answer,
+            plan=plan,
+            entities=entities,
+            graph_path=graph_path,
+            evidence_count=evidence_count,
+            confidence=confidence,
+            retrieval_mode=retrieval_mode,
+        )
+
+    def recent(
+        self,
+        conversation_id: str,
+        user_id: str,
+        limit: int = 10,
+    ) -> List[Dict[str, Any]]:
+
+        return self.store.recent_turns(
+            conversation_id=conversation_id,
+            user_id=user_id,
+            limit=limit,
+        )
+
+    # ========================================================
+    # Search
+    # ========================================================
 
     def search(
         self,
-        query_text: str,
-        memory_type: str | None = None,
-        limit: int = 10,
-    ):
-        """
-        Search previously stored memories.
-        """
+        question: str,
+        user_id: str,
+        limit: int = 5,
+    ) -> List[Dict[str, Any]]:
 
-        safe_query = query_text.replace("'", "\\'")
+        return self.store.search_memory(
+            question=question,
+            user_id=user_id,
+            limit=limit,
+        )
 
-        type_filter = ""
+    # ========================================================
+    # Context
+    # ========================================================
 
-        if memory_type:
-            safe_type = memory_type.replace("'", "\\'")
-            type_filter = (
-                f"AND m.memory_type = '{safe_type}'"
+    def build_context(
+        self,
+        question: str,
+        user_id: str,
+        conversation_id: Optional[str] = None,
+        limit: int = 5,
+    ) -> Dict[str, Any]:
+
+        matches = self.search(
+            question=question,
+            user_id=user_id,
+            limit=limit,
+        )
+
+        recent_turns: List[
+            Dict[str, Any]
+        ] = []
+
+        if conversation_id:
+            recent_turns = self.recent(
+                conversation_id=conversation_id,
+                user_id=user_id,
+                limit=limit,
             )
 
-        cypher = f"""
-        MATCH (m:Memory)
-        WHERE toLower(m.content)
-              CONTAINS
-              toLower('{safe_query}')
-        {type_filter}
+        return {
+            "enabled": True,
+            "conversation_id": conversation_id,
+            "matches": matches,
+            "recent_turns": recent_turns,
+            "match_count": len(matches),
+            "recent_turn_count": len(
+                recent_turns
+            ),
+            "graph_name": self.graph_name,
+        }
 
-        RETURN
-            m.id AS id,
-            m.content AS content,
-            m.memory_type AS memory_type,
-            m.importance AS importance,
-            m.created_at AS created_at
+    # ========================================================
+    # Delete
+    # ========================================================
 
-        ORDER BY m.importance DESC
-        LIMIT {limit}
-        """
+    def delete_conversation(
+        self,
+        conversation_id: str,
+        user_id: str,
+    ) -> Dict[str, Any]:
 
-        return run_cypher(
-            cypher,
-            self.graph_name,
-        )
-
-    def recent(self, limit: int = 10):
-        """
-        Return recent memories.
-        """
-
-        cypher = f"""
-        MATCH (m:Memory)
-
-        RETURN
-            m.id AS id,
-            m.content AS content,
-            m.memory_type AS memory_type,
-            m.importance AS importance,
-            m.created_at AS created_at
-
-        ORDER BY m.created_at DESC
-        LIMIT {limit}
-        """
-
-        return run_cypher(
-            cypher,
-            self.graph_name,
-        )
-
-    def related_to(self, entity_name: str):
-        """
-        Retrieve memories associated with a company entity.
-        """
-
-        safe_entity = entity_name.replace("'", "\\'")
-
-        cypher = f"""
-        MATCH (m:Memory)-[:ABOUT]->(entity)
-        WHERE entity.name = '{safe_entity}'
-
-        RETURN
-            m.id AS id,
-            m.content AS content,
-            m.memory_type AS memory_type,
-            m.importance AS importance,
-            m.created_at AS created_at,
-            entity.name AS entity
-
-        ORDER BY m.importance DESC
-        """
-
-        return run_cypher(
-            cypher,
-            self.graph_name,
+        return self.store.delete_conversation(
+            conversation_id=conversation_id,
+            user_id=user_id,
         )
