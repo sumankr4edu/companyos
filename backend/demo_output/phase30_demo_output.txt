@@ -1,0 +1,1201 @@
+
+================================================================================
+COMPANYOS — GRAPH-NATIVE COMPANY BRAIN
+PHASE 30 JUDGE DEMO
+================================================================================
+Backend: http://127.0.0.1:8000
+Graph database: FalkorDB
+Authenticated user: suman
+Demo questions: 5
+
+================================================================================
+QUESTION
+Who knows the most about the payment system?
+================================================================================
+HTTP STATUS: 200
+
+================================================================================
+ANSWER
+================================================================================
+ANSWER:
+Amit Chen and Maya Singh are tied for knowing the most about the payment system (Payment Service), each having an expertise score of 10 based on service ownership.
+
+EVIDENCE:
+- Expertise ranking data for entity "Payment Service" scores Amit Chen at 10 with relationship `['OWNS']`.
+- Expertise ranking data for entity "Payment Service" scores Maya Singh at 10 with relationship `['OWNS']`.
+- Graph node `service_payment` represents "Payment Service" (ID: 7, status: healthy).
+
+GRAPH PATH:
+(Amit Chen) -[:OWNS]-> (service_payment:Service {name: 'Payment Service'})
+(Maya Singh) -[:OWNS]-> (service_payment:Service {name: 'Payment Service'})
+
+WHY THIS ANSWER:
+The expertise ranking algorithm executed over the graph identified both Amit Chen and Maya Singh as holding the highest expertise score (10) for Payment Service through explicit ownership (`OWNS`) relationships.
+
+CONTRADICTIONS:
+None identified
+
+CONFIDENCE:
+0.5
+
+UNKNOWNS:
+- A tiebreaker or distinction in expertise between Amit Chen and Maya Singh, as both have identical expertise scores and ownership roles.
+- Timestamps and source provenance for the ownership records.
+
+================================================================================
+GRAPH-FIRST
+================================================================================
+True
+
+================================================================================
+GRAPH CONTEXT
+================================================================================
+{}
+
+================================================================================
+EVIDENCE
+================================================================================
+[]
+
+================================================================================
+CONTRADICTIONS
+================================================================================
+[]
+
+================================================================================
+FRESHNESS
+================================================================================
+{
+  "stale_after_days": 180,
+  "fresh_records": [],
+  "stale_records": [],
+  "unknown_records": [
+    {
+      "record": {
+        "person": "Amit Chen",
+        "expertise_score": 10,
+        "relationships": [
+          "OWNS"
+        ]
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "person": "Maya Singh",
+        "expertise_score": 10,
+        "relationships": [
+          "OWNS"
+        ]
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "person": "Maya Singh",
+        "expertise_score": 10,
+        "relationships": [
+          "OWNS"
+        ]
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "person": "Maya Singh",
+        "expertise_score": 10,
+        "relationships": [
+          "OWNS"
+        ]
+      },
+      "reason": "No timestamp available."
+    }
+  ],
+  "freshness_score": 0.0,
+  "total_records": 4
+}
+
+================================================================================
+UNKNOWN / LIMITATIONS
+================================================================================
+[]
+
+================================================================================
+QUESTION
+Why was the payment architecture changed?
+================================================================================
+HTTP STATUS: 200
+
+================================================================================
+ANSWER
+================================================================================
+ANSWER:
+The graph evidence does not establish the reason or rationale for why the payment architecture was changed. The graph only records that an approved decision titled "Move payment processing to dedicated Payment Service" was implemented through the "Payment Service Migration" project, but the underlying motivation, incident, or cause is not linked.
+
+EVIDENCE:
+- Project `project_payment_migration` ("Payment Service Migration") -[IMPLEMENTED_BY]-> Decision `decision_payment_architecture_001` ("Move payment processing to dedicated Payment Service", status: approved).
+- Decision `decision_payment_architecture_001` -[MADE_BY]-> Alice Chen (`person_alice`, Staff Software Engineer).
+- Project `project_payment_migration` -[PRODUCES]-> Service `service_payment` ("Payment Service", status: healthy).
+- Maya Singh (`person_maya`, Engineering Manager) -[OWNS]-> Service `service_payment`.
+
+GRAPH PATH:
+Payment Service Migration -[IMPLEMENTED_BY]-> Move payment processing to dedicated Payment Service -[MADE_BY]-> Alice Chen
+Payment Service Migration -[PRODUCES]-> Payment Service <-[OWNS]- Maya Singh
+
+WHY THIS ANSWER:
+The FalkorDB company graph verifies the entities and relationships surrounding the payment service migration and decision-making, but lacks any relationship or document establishing the root cause, incident, or justification for the architecture change.
+
+CONTRADICTIONS:
+None identified
+
+CONFIDENCE:
+0.5
+
+UNKNOWNS:
+- The specific reason, trigger, or business justification for changing the payment architecture.
+- The canonical checkout failure incident could not be established.
+- No direct Incident-to-Migration relationship exists in the graph.
+
+================================================================================
+GRAPH-FIRST
+================================================================================
+True
+
+================================================================================
+GRAPH CONTEXT
+================================================================================
+{}
+
+================================================================================
+EVIDENCE
+================================================================================
+[]
+
+================================================================================
+CONTRADICTIONS
+================================================================================
+[]
+
+================================================================================
+FRESHNESS
+================================================================================
+{
+  "stale_after_days": 180,
+  "fresh_records": [],
+  "stale_records": [],
+  "unknown_records": [
+    {
+      "record": {
+        "decision_title": "Move payment processing to dedicated Payment Service",
+        "decision_name": null,
+        "relationship": "MADE_BY",
+        "person": "Alice Chen"
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "decision_title": "Move authentication to Identity Service",
+        "decision_name": "Move authentication to Identity Service #1",
+        "relationship": "MADE_BY",
+        "person": "Sneha Verma"
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "decision_title": "Adopt zero-downtime deployments",
+        "decision_name": "Adopt zero-downtime deployments #2",
+        "relationship": "MADE_BY",
+        "person": "Aditya Mehta"
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "decision_title": "Adopt zero-downtime deployments",
+        "decision_name": "Adopt zero-downtime deployments #3",
+        "relationship": "MADE_BY",
+        "person": "Raj Patel"
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "decision_title": "Migrate database infrastructure",
+        "decision_name": "Migrate database infrastructure #4",
+        "relationship": "MADE_BY",
+        "person": "Aditya Mehta"
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "decision_title": "Migrate database infrastructure",
+        "decision_name": "Migrate database infrastructure #5",
+        "relationship": "MADE_BY",
+        "person": "Rohan Chen"
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "decision_title": "Adopt centralized observability",
+        "decision_name": "Adopt centralized observability #6",
+        "relationship": "MADE_BY",
+        "person": "Arjun Das"
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "decision_title": "Introduce feature flags",
+        "decision_name": "Introduce feature flags #7",
+        "relationship": "MADE_BY",
+        "person": "Arjun Das"
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "decision_title": "Move authentication to Identity Service",
+        "decision_name": "Move authentication to Identity Service #8",
+        "relationship": "MADE_BY",
+        "person": "Rohan Chen"
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "decision_title": "Standardize REST APIs",
+        "decision_name": "Standardize REST APIs #9",
+        "relationship": "MADE_BY",
+        "person": "Ananya Das"
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "decision_title": "Adopt zero-downtime deployments",
+        "decision_name": "Adopt zero-downtime deployments #10",
+        "relationship": "MADE_BY",
+        "person": "Sneha Verma"
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "decision_title": "Move payment processing to dedicated Payment Service",
+        "decision_name": "Move payment processing to dedicated Payment Service #11",
+        "relationship": "MADE_BY",
+        "person": "Alice Chen"
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "decision_title": "Move payment processing to dedicated Payment Service",
+        "decision_name": "Move payment processing to dedicated Payment Service #11",
+        "relationship": "MADE_BY",
+        "person": "Meera Chen"
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "decision_title": "Introduce service ownership model",
+        "decision_name": "Introduce service ownership model #12",
+        "relationship": "MADE_BY",
+        "person": "Alice Sharma"
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "decision_title": "Adopt centralized observability",
+        "decision_name": "Adopt centralized observability #13",
+        "relationship": "MADE_BY",
+        "person": "Rohan Chen"
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "decision_title": "Adopt event-driven architecture",
+        "decision_name": "Adopt event-driven architecture #14",
+        "relationship": "MADE_BY",
+        "person": "Kavya Sharma"
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "decision_title": "Adopt event-driven architecture",
+        "decision_name": "Adopt event-driven architecture #15",
+        "relationship": "MADE_BY",
+        "person": "Nikhil Verma"
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "decision_title": "Adopt centralized observability",
+        "decision_name": "Adopt centralized observability #16",
+        "relationship": "MADE_BY",
+        "person": "Kavya Sharma"
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "decision_title": "Move payment processing to dedicated Payment Service",
+        "decision_name": "Move payment processing to dedicated Payment Service #17",
+        "relationship": "MADE_BY",
+        "person": "Alice Chen"
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "decision_title": "Move payment processing to dedicated Payment Service",
+        "decision_name": "Move payment processing to dedicated Payment Service #17",
+        "relationship": "MADE_BY",
+        "person": "Raj Verma"
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "decision_title": "Move payment processing to dedicated Payment Service",
+        "decision_name": "Move payment processing to dedicated Payment Service #18",
+        "relationship": "MADE_BY",
+        "person": "Alice Chen"
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "decision_title": "Move payment processing to dedicated Payment Service",
+        "decision_name": "Move payment processing to dedicated Payment Service #18",
+        "relationship": "MADE_BY",
+        "person": "Ishita Mehta"
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "decision_title": "Move authentication to Identity Service",
+        "decision_name": "Move authentication to Identity Service #19",
+        "relationship": "MADE_BY",
+        "person": "Kavya Sharma"
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "decision_title": "Introduce service ownership model",
+        "decision_name": "Introduce service ownership model #20",
+        "relationship": "MADE_BY",
+        "person": "Vikram Mehta"
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "decision_title": "Introduce distributed tracing",
+        "decision_name": "Introduce distributed tracing #21",
+        "relationship": "MADE_BY",
+        "person": "Vikram Mehta"
+      },
+      "reason": "No timestamp available."
+    }
+  ],
+  "freshness_score": 0.0,
+  "total_records": 25
+}
+
+================================================================================
+UNKNOWN / LIMITATIONS
+================================================================================
+[]
+
+================================================================================
+QUESTION
+What happens if Payment Service goes down?
+================================================================================
+HTTP STATUS: 200
+
+================================================================================
+ANSWER
+================================================================================
+ANSWER:
+If Payment Service goes down, the primary direct impact (1-hop blast radius) is on Checkout Service, Incident Service, and Metrics Service. Checkout Service has an explicit dependency relationship and has historically been involved in checkout failure incidents associated with Payment Service. Across higher dependency tiers (2 to 4 hops), downstream or upstream ripple effects reach services including Wallet Service, Partner Service, Webhook Service, Authentication Service, Feature Flag Service, Catalog Service, Pricing Service, Billing Service, and Settlement Service.
+
+EVIDENCE:
+- Dependency blast radius shows 1-hop affected services: Checkout Service, Incident Service, Metrics Service.
+- 2-hop affected services: Authentication Service, Experiment Service, Feature Flag Service, Partner Service, Wallet Service, Webhook Service.
+- 3-hop affected services: Catalog Service, Checkout Service, Data Pipeline, Document Service, Message Service, Notification Service, Partner API, Pricing Service, Recommendation Engine, Reporting API, Subscription Service.
+- 4-hop affected services: API Gateway, Analytics Service, Audit Service, Billing Service, Compliance Service, Customer Support Service, Settlement Service, Shipping Service, Tracing Service, and others.
+- Graph edges link Payment Service (`service_payment`) directly to Checkout Service via `DEPENDS_ON`.
+- Payment Service is connected via `INVOLVES` relationships to multiple checkout failure incidents (e.g., `incident_checkout_001`, `INCIDENT-002`, `INCIDENT-014`, `INCIDENT-015`, `INCIDENT-053`).
+
+GRAPH PATH:
+- `(Payment Service:Service {id: 'service_payment'}) -[:DEPENDS_ON]-> (Checkout Service:Service {id: 'service_checkout'})`
+- `(Payment Service:Service {id: 'service_payment'}) -[:INVOLVES]-> (Incident {title: 'Checkout failures increased'})`
+- `Payment Service -> [1 hop] -> Checkout Service, Incident Service, Metrics Service`
+- `Payment Service -> [2 hops] -> Authentication Service, Experiment Service, Feature Flag Service, Partner Service, Wallet Service, Webhook Service`
+
+WHY THIS ANSWER:
+The blast radius calculation and graph traversal from `Payment Service` identify direct 1-hop dependencies on Checkout Service, Incident Service, and Metrics Service, along with multi-hop impacts extending across wider platform services (hops 2–4). Furthermore, multiple recorded incidents directly tie Payment Service to checkout failure events.
+
+CONTRADICTIONS:
+None identified.
+
+CONFIDENCE:
+0.5 (Evidence score in records is 0.5; overall retrieval algorithm confidence reported as 0.0 due to missing timestamps).
+
+UNKNOWNS:
+- Exact runtime behavior, fallback mechanisms, or whether graceful degradation/circuit breaking exists between Payment Service and dependent services.
+- Detailed directionality of all multi-hop blast radius dependencies beyond the explicitly listed path nodes.
+
+================================================================================
+GRAPH-FIRST
+================================================================================
+True
+
+================================================================================
+GRAPH CONTEXT
+================================================================================
+{}
+
+================================================================================
+EVIDENCE
+================================================================================
+[]
+
+================================================================================
+CONTRADICTIONS
+================================================================================
+[]
+
+================================================================================
+FRESHNESS
+================================================================================
+{
+  "stale_after_days": 180,
+  "fresh_records": [],
+  "stale_records": [],
+  "unknown_records": [
+    {
+      "record": {
+        "target_service": "Payment Service",
+        "affected_service": "Checkout Service",
+        "hops": 1
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "target_service": "Payment Service",
+        "affected_service": "Incident Service",
+        "hops": 1
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "target_service": "Payment Service",
+        "affected_service": "Metrics Service",
+        "hops": 1
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "target_service": "Payment Service",
+        "affected_service": "Authentication Service",
+        "hops": 2
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "target_service": "Payment Service",
+        "affected_service": "Experiment Service",
+        "hops": 2
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "target_service": "Payment Service",
+        "affected_service": "Feature Flag Service",
+        "hops": 2
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "target_service": "Payment Service",
+        "affected_service": "Partner Service",
+        "hops": 2
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "target_service": "Payment Service",
+        "affected_service": "Wallet Service",
+        "hops": 2
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "target_service": "Payment Service",
+        "affected_service": "Webhook Service",
+        "hops": 2
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "target_service": "Payment Service",
+        "affected_service": "Catalog Service",
+        "hops": 3
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "target_service": "Payment Service",
+        "affected_service": "Checkout Service",
+        "hops": 3
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "target_service": "Payment Service",
+        "affected_service": "Data Pipeline",
+        "hops": 3
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "target_service": "Payment Service",
+        "affected_service": "Document Service",
+        "hops": 3
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "target_service": "Payment Service",
+        "affected_service": "Message Service",
+        "hops": 3
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "target_service": "Payment Service",
+        "affected_service": "Notification Service",
+        "hops": 3
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "target_service": "Payment Service",
+        "affected_service": "Partner API",
+        "hops": 3
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "target_service": "Payment Service",
+        "affected_service": "Pricing Service",
+        "hops": 3
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "target_service": "Payment Service",
+        "affected_service": "Recommendation Engine",
+        "hops": 3
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "target_service": "Payment Service",
+        "affected_service": "Reporting API",
+        "hops": 3
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "target_service": "Payment Service",
+        "affected_service": "Subscription Service",
+        "hops": 3
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "target_service": "Payment Service",
+        "affected_service": "API Gateway",
+        "hops": 4
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "target_service": "Payment Service",
+        "affected_service": "Analytics Service",
+        "hops": 4
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "target_service": "Payment Service",
+        "affected_service": "Audit Service",
+        "hops": 4
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "target_service": "Payment Service",
+        "affected_service": "Authentication Service",
+        "hops": 4
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "target_service": "Payment Service",
+        "affected_service": "Billing Service",
+        "hops": 4
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "target_service": "Payment Service",
+        "affected_service": "Compliance Service",
+        "hops": 4
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "target_service": "Payment Service",
+        "affected_service": "Customer Support Service",
+        "hops": 4
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "target_service": "Payment Service",
+        "affected_service": "Data Pipeline",
+        "hops": 4
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "target_service": "Payment Service",
+        "affected_service": "Event Service",
+        "hops": 4
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "target_service": "Payment Service",
+        "affected_service": "Feature Flag Service",
+        "hops": 4
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "target_service": "Payment Service",
+        "affected_service": "Identity Service",
+        "hops": 4
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "target_service": "Payment Service",
+        "affected_service": "Merchant Service",
+        "hops": 4
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "target_service": "Payment Service",
+        "affected_service": "Message Service",
+        "hops": 4
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "target_service": "Payment Service",
+        "affected_service": "Metrics Service",
+        "hops": 4
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "target_service": "Payment Service",
+        "affected_service": "Notification Service",
+        "hops": 4
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "target_service": "Payment Service",
+        "affected_service": "Partner Service",
+        "hops": 4
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "target_service": "Payment Service",
+        "affected_service": "Payment Service",
+        "hops": 4
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "target_service": "Payment Service",
+        "affected_service": "Secrets Service",
+        "hops": 4
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "target_service": "Payment Service",
+        "affected_service": "Settlement Service",
+        "hops": 4
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "target_service": "Payment Service",
+        "affected_service": "Shipping Service",
+        "hops": 4
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "target_service": "Payment Service",
+        "affected_service": "Tracing Service",
+        "hops": 4
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "target_service": "Payment Service",
+        "affected_service": "Webhook Service",
+        "hops": 4
+      },
+      "reason": "No timestamp available."
+    }
+  ],
+  "freshness_score": 0.0,
+  "total_records": 42
+}
+
+================================================================================
+UNKNOWN / LIMITATIONS
+================================================================================
+[]
+
+================================================================================
+QUESTION
+Who should investigate the checkout failures?
+================================================================================
+HTTP STATUS: 200
+
+================================================================================
+ANSWER
+================================================================================
+ANSWER:
+The graph does not designate an official owner or assigned investigator for Checkout Service. However, multiple individuals are recorded as involved in "Checkout failures increased" incidents affecting Checkout Service: Ishita Mehta, Nikhil Verma, and Vikram Mehta (each involved in multiple incidents), along with Kavya Sharma, Rohan Chen, Ananya Das, Alice Sharma, Rahul Sharma, Varun Das, and Meera Chen. If the failure relates to underlying payment processing, Maya Singh owns Payment Service and Alice Chen made the architectural decision to move payment processing there, though no direct link between the checkout incidents and Payment Service is established.
+
+EVIDENCE:
+- Incidents named "Checkout failures increased #2, #4, #9, #14, #15, #16, #20, #51, #53, #72, #83, #85, #93" have an `AFFECTS` relationship with Checkout Service.
+- People with `INVOLVES` relationships to these incidents:
+  - Kavya Sharma (#2)
+  - Rohan Chen (#4)
+  - Ishita Mehta (#9, #72)
+  - Ananya Das (#14)
+  - Vikram Mehta (#15, #93)
+  - Alice Sharma (#16)
+  - Nikhil Verma (#20, #83)
+  - Rahul Sharma (#51)
+  - Varun Das (#53)
+  - Meera Chen (#85)
+- Maya Singh `OWNS` Payment Service.
+- Alice Chen `MADE_BY` the decision "Move payment processing to dedicated Payment Service".
+
+GRAPH PATH:
+- Checkout failures increased -[AFFECTS]-> Checkout Service
+- Checkout failures increased -[INVOLVES]-> Person (Kavya Sharma, Rohan Chen, Ishita Mehta, Ananya Das, Vikram Mehta, Alice Sharma, Nikhil Verma, Rahul Sharma, Varun Das, Meera Chen)
+- Maya Singh -[OWNS]-> Payment Service
+- Payment Service Migration -[IMPLEMENTED_BY]-> Move payment processing to dedicated Payment Service -[MADE_BY]-> Alice Chen
+- Payment Service Migration -[PRODUCES]-> Payment Service
+
+WHY THIS ANSWER:
+Graph evidence records 10 individuals involved across various historical checkout failure incidents affecting Checkout Service, but explicitly lacks an owner relationship (`person_service_relationship: None`) for Checkout Service. Potential payment architecture contacts exist (Maya Singh, Alice Chen), but have no direct graph link to the checkout failure incidents.
+
+CONTRADICTIONS:
+None identified
+
+CONFIDENCE:
+0.5
+
+UNKNOWNS:
+- The specific owner or primary on-call investigator for Checkout Service cannot be established from the graph.
+- The canonical checkout failure incident could not be established.
+- No direct Incident-to-Migration relationship was established between the Checkout Service failures and the Payment Service.
+
+================================================================================
+GRAPH-FIRST
+================================================================================
+True
+
+================================================================================
+GRAPH CONTEXT
+================================================================================
+{}
+
+================================================================================
+EVIDENCE
+================================================================================
+[]
+
+================================================================================
+CONTRADICTIONS
+================================================================================
+[]
+
+================================================================================
+FRESHNESS
+================================================================================
+{
+  "stale_after_days": 180,
+  "fresh_records": [],
+  "stale_records": [],
+  "unknown_records": [
+    {
+      "record": {
+        "service": "Checkout Service",
+        "incident_title": "Checkout failures increased",
+        "incident_name": "Checkout failures increased #2",
+        "incident_description": null,
+        "incident_relationship": "AFFECTS",
+        "person": "Kavya Sharma",
+        "person_incident_relationship": "INVOLVES",
+        "person_service_relationship": null
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "service": "Checkout Service",
+        "incident_title": "Checkout failures increased",
+        "incident_name": "Checkout failures increased #4",
+        "incident_description": null,
+        "incident_relationship": "AFFECTS",
+        "person": "Rohan Chen",
+        "person_incident_relationship": "INVOLVES",
+        "person_service_relationship": null
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "service": "Checkout Service",
+        "incident_title": "Checkout failures increased",
+        "incident_name": "Checkout failures increased #9",
+        "incident_description": null,
+        "incident_relationship": "AFFECTS",
+        "person": "Ishita Mehta",
+        "person_incident_relationship": "INVOLVES",
+        "person_service_relationship": null
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "service": "Checkout Service",
+        "incident_title": "Checkout failures increased",
+        "incident_name": "Checkout failures increased #14",
+        "incident_description": null,
+        "incident_relationship": "AFFECTS",
+        "person": "Ananya Das",
+        "person_incident_relationship": "INVOLVES",
+        "person_service_relationship": null
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "service": "Checkout Service",
+        "incident_title": "Checkout failures increased",
+        "incident_name": "Checkout failures increased #15",
+        "incident_description": null,
+        "incident_relationship": "AFFECTS",
+        "person": "Vikram Mehta",
+        "person_incident_relationship": "INVOLVES",
+        "person_service_relationship": null
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "service": "Checkout Service",
+        "incident_title": "Checkout failures increased",
+        "incident_name": "Checkout failures increased #16",
+        "incident_description": null,
+        "incident_relationship": "AFFECTS",
+        "person": "Alice Sharma",
+        "person_incident_relationship": "INVOLVES",
+        "person_service_relationship": null
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "service": "Checkout Service",
+        "incident_title": "Checkout failures increased",
+        "incident_name": "Checkout failures increased #20",
+        "incident_description": null,
+        "incident_relationship": "AFFECTS",
+        "person": "Nikhil Verma",
+        "person_incident_relationship": "INVOLVES",
+        "person_service_relationship": null
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "service": "Checkout Service",
+        "incident_title": "Checkout failures increased",
+        "incident_name": "Checkout failures increased #51",
+        "incident_description": null,
+        "incident_relationship": "AFFECTS",
+        "person": "Rahul Sharma",
+        "person_incident_relationship": "INVOLVES",
+        "person_service_relationship": null
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "service": "Checkout Service",
+        "incident_title": "Checkout failures increased",
+        "incident_name": "Checkout failures increased #53",
+        "incident_description": null,
+        "incident_relationship": "AFFECTS",
+        "person": "Varun Das",
+        "person_incident_relationship": "INVOLVES",
+        "person_service_relationship": null
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "service": "Checkout Service",
+        "incident_title": "Checkout failures increased",
+        "incident_name": "Checkout failures increased #72",
+        "incident_description": null,
+        "incident_relationship": "AFFECTS",
+        "person": "Ishita Mehta",
+        "person_incident_relationship": "INVOLVES",
+        "person_service_relationship": null
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "service": "Checkout Service",
+        "incident_title": "Checkout failures increased",
+        "incident_name": "Checkout failures increased #83",
+        "incident_description": null,
+        "incident_relationship": "AFFECTS",
+        "person": "Nikhil Verma",
+        "person_incident_relationship": "INVOLVES",
+        "person_service_relationship": null
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "service": "Checkout Service",
+        "incident_title": "Checkout failures increased",
+        "incident_name": "Checkout failures increased #85",
+        "incident_description": null,
+        "incident_relationship": "AFFECTS",
+        "person": "Meera Chen",
+        "person_incident_relationship": "INVOLVES",
+        "person_service_relationship": null
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "service": "Checkout Service",
+        "incident_title": "Checkout failures increased",
+        "incident_name": "Checkout failures increased #93",
+        "incident_description": null,
+        "incident_relationship": "AFFECTS",
+        "person": "Vikram Mehta",
+        "person_incident_relationship": "INVOLVES",
+        "person_service_relationship": null
+      },
+      "reason": "No timestamp available."
+    },
+    {
+      "record": {
+        "service": "Checkout Service",
+        "incident_title": "Checkout failures increased",
+        "incident_name": null,
+        "incident_description": null,
+        "incident_relationship": "AFFECTS",
+        "person": null,
+        "person_incident_relationship": null,
+        "person_service_relationship": null
+      },
+      "reason": "No timestamp available."
+    }
+  ],
+  "freshness_score": 0.0,
+  "total_records": 14
+}
+
+================================================================================
+UNKNOWN / LIMITATIONS
+================================================================================
+[]
+
+================================================================================
+QUESTION
+Checkout failures increased this week. What happened, who worked on the affected system before, what decision caused the current architecture, and who should investigate it?
+================================================================================
+HTTP STATUS: 200
+
+================================================================================
+ANSWER
+================================================================================
+ANSWER:
+The exact cause of the checkout failures is not established in the graph. However, the architecture separating the Payment Service was created by the "Payment Service Migration" project under the decision "Move payment processing to dedicated Payment Service," which was made by Alice Chen. The Payment Service is currently owned by Maya Singh, who should be contacted to investigate.
+
+EVIDENCE:
+- Decision `decision_payment_architecture_001` ("Move payment processing to dedicated Payment Service", approved) was made by Alice Chen (Staff Software Engineer).
+- Project `project_payment_migration` ("Payment Service Migration") implemented the decision and produced `service_payment` ("Payment Service").
+- Maya Singh (Engineering Manager) owns `service_payment` ("Payment Service").
+- Checkout Service has no recorded incident or direct migration relationships in the graph.
+
+GRAPH PATH:
+- `Payment Service Migration` -[PRODUCES]-> `Payment Service`
+- `Payment Service Migration` -[IMPLEMENTED_BY]-> `Move payment processing to dedicated Payment Service`
+- `Move payment processing to dedicated Payment Service` -[MADE_BY]-> `Alice Chen`
+- `Maya Singh` -[OWNS]-> `Payment Service`
+
+WHY THIS ANSWER:
+Graph evidence establishes that the dedicated Payment Service architecture was implemented via a migration project approved by Alice Chen, and the service is currently owned by Maya Singh. No incident records connect directly to Checkout Service or explain the recent failures.
+
+CONTRADICTIONS:
+None identified
+
+CONFIDENCE:
+0.5
+
+UNKNOWNS:
+- What caused the increase in checkout failures (the canonical checkout failure incident could not be established).
+- Direct relationship between Checkout Service failures and the Payment Service or its migration.
+- Any other individuals who previously worked on the affected system besides Alice Chen.
+
+================================================================================
+GRAPH-FIRST
+================================================================================
+True
+
+================================================================================
+GRAPH CONTEXT
+================================================================================
+{}
+
+================================================================================
+EVIDENCE
+================================================================================
+[]
+
+================================================================================
+CONTRADICTIONS
+================================================================================
+[]
+
+================================================================================
+FRESHNESS
+================================================================================
+{
+  "stale_after_days": 180,
+  "fresh_records": [],
+  "stale_records": [],
+  "unknown_records": [
+    {
+      "record": {
+        "service": "Checkout Service",
+        "migration": null,
+        "migration_relationship": null,
+        "decision_title": null,
+        "decision_name": null,
+        "decision_relationship": null,
+        "decision_maker": null,
+        "person_relationship": null,
+        "direct_decision_title": null,
+        "direct_decision_name": null,
+        "direct_decision_relationship": null
+      },
+      "reason": "No timestamp available."
+    }
+  ],
+  "freshness_score": 0.0,
+  "total_records": 1
+}
+
+================================================================================
+UNKNOWN / LIMITATIONS
+================================================================================
+[]
+
+================================================================================
+DEMO SUMMARY
+================================================================================
+Successful questions: 5/5
+Failed questions: 0/5
+STATUS: PASS

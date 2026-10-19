@@ -496,14 +496,11 @@ async def chat(
         )
 
     except TypeError as exc:
-
         raise HTTPException(
             status_code=500,
             detail=(
-                "The CompanyOS orchestrator does not yet "
-                "support Phase 22 conversation state. "
-                "Update agents/orchestrator.py so run() "
-                "accepts conversation_id and memory_context."
+                "CompanyOS orchestrator execution failed: "
+                f"{exc}"
             ),
         ) from exc
 
