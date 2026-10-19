@@ -1,830 +1,364 @@
-[README.md](https://github.com/user-attachments/files/33635263/README.md)
-# CompanyOS --- The Graph-Native Company Brain
+[README.md](https://github.com/user-attachments/files/33663831/README.1.md)
+# CompanyOS — The Graph-Native Company Brain
 
-> **Your company's knowledge, connected.**\
+> **Your company's knowledge, connected.**  
 > **Ask your company. Follow the graph. Get the evidence.**
 
-CompanyOS is a graph-native company intelligence platform built around
-**FalkorDB**. It connects people, teams, projects, services, incidents,
-documents, architectural decisions, dependencies, ownership, and
-organizational knowledge into one traversable company graph.
+CompanyOS is a graph-native AI company knowledge system built around **FalkorDB**. It connects people, teams, projects, services, incidents, decisions, documents, ownership, dependencies, memory, and actions into one queryable company graph.
 
-Instead of returning isolated search results, CompanyOS uses graph
-traversal, graph algorithms, persistent memory, and agent orchestration
-to answer multi-hop questions with **evidence, graph paths, confidence,
-contradictions, and unknowns**.
+Instead of treating company knowledge as disconnected documents or isolated vector-search results, CompanyOS uses relationships as first-class context. AI agents can traverse those relationships, explain the evidence path, preserve memory, detect contradictions, coordinate work, and turn investigations into auditable actions.
 
-------------------------------------------------------------------------
+---
 
-## Why CompanyOS?
+## ✨ What CompanyOS Does
 
-Company knowledge is usually fragmented across documentation, tickets,
-repositories, incident reports, conversations, architecture decisions,
-and individual expertise.
+CompanyOS answers questions that require connected organizational context:
 
-A question such as:
+- Who knows the most about a system?
+- Who owns this service?
+- What depends on this service?
+- What breaks if this service goes down?
+- Why was this architecture changed?
+- Which people worked on the affected system before?
+- Which incidents are connected to this problem?
+- What decision caused the current architecture?
+- Who should investigate an issue?
+- What did we discover in a previous investigation?
 
-> "Checkout failures increased. What happened, who worked on the
-> affected system, why was the architecture changed, and who should
-> investigate?"
+The system is designed for **multi-hop graph reasoning**, not simple keyword retrieval.
 
-is not a simple keyword-search problem.
+### Example
 
-It requires connecting multiple entities:
+> **Checkout failures increased this week. What happened, who worked on the affected system before, what decision caused the current architecture, and who should investigate it?**
 
-``` text
+A typical reasoning path can connect:
+
+```text
 Checkout Service
-      ↓ DEPENDS_ON
-Payment Service
-      ↓ INVOLVES
-Incident
-      ↓
-Payment Migration
-      ↓ IMPLEMENTED_BY
-Architecture Decision
-      ↓ MADE_BY
-Engineer
-      ↓
-Current Owner
+      │
+      └── DEPENDS_ON ──> Payment Service
+                              │
+                              ├── OWNS ──> Maya Singh
+                              │
+                              └── PRODUCES <── Payment Service Migration
+                                                  │
+                                                  ├── IMPLEMENTED_BY ──> Decision
+                                                  │                         │
+                                                  │                         └── MADE_BY ──> Alice Chen
+                                                  │
+                                                  └── historical context
 ```
 
-CompanyOS makes these relationships first-class graph data.
+CompanyOS does **not** invent missing graph relationships. If the graph cannot establish a fact, the response reports the unknown explicitly.
 
-------------------------------------------------------------------------
+---
 
-## Core Features
+# 🧠 Why FalkorDB Is Central
 
--   Natural-language company knowledge search
--   Graph-first AI reasoning
--   Multi-hop relationship traversal
--   FalkorDB-powered Cypher queries
--   Expertise and ownership discovery
--   Dependency analysis and blast-radius analysis
--   Centrality and connected-component analysis
--   Architectural decision tracing
--   Incident investigation
--   Persistent agent memory
--   Conversation state
--   Evidence and provenance
--   Contradiction detection
--   Freshness awareness
--   Explainable graph paths
--   Investigation actions and task tracking
--   Multi-agent orchestration
--   Interactive graph visualization
--   Secure Cypher validation
--   Tenant isolation architecture
--   API and end-to-end testing
+FalkorDB is not a decorative persistence layer. It is the **context and reasoning layer** of CompanyOS.
 
-------------------------------------------------------------------------
+It is used for:
 
-# Architecture
+- Entity relationships
+- Multi-hop traversal
+- Dependency analysis
+- Ownership analysis
+- Graph search
+- Shortest-path reasoning
+- Connected components
+- Centrality / PageRank-style analysis
+- Organizational memory
+- Agent coordination state
+- Investigation and action history
+- Provenance and evidence
+- Tenant-isolated company graphs
 
-``` text
-                         ┌─────────────────────────┐
-                         │       Next.js UI        │
-                         │                         │
-                         │ AI Command Center       │
-                         │ Graph Explorer          │
-                         │ Evidence / Reasoning    │
-                         │ Investigation Actions   │
-                         └────────────┬────────────┘
-                                      │
-                                      ▼
-                         ┌─────────────────────────┐
-                         │        FastAPI          │
-                         │       REST API          │
-                         └────────────┬────────────┘
-                                      │
-                                      ▼
-                         ┌─────────────────────────┐
-                         │      Orchestrator       │
-                         └────────────┬────────────┘
-                                      │
-             ┌────────────────────────┼────────────────────────┐
-             │                        │                        │
-             ▼                        ▼                        ▼
-      ┌──────────────┐        ┌──────────────┐        ┌──────────────┐
-      │ Graph Agent  │        │ Memory Agent │        │ Action Agent │
-      └──────┬───────┘        └──────┬───────┘        └──────┬───────┘
-             │                       │                       │
-             └───────────────────────┼───────────────────────┘
-                                     ▼
-                         ┌─────────────────────────┐
-                         │        FalkorDB         │
-                         │                         │
-                         │ Company Graph           │
-                         │ Memory                  │
-                         │ Evidence                │
-                         │ Actions                 │
-                         │ Agent State             │
-                         │ Audit Trail             │
-                         └────────────┬────────────┘
-                                      │
-                    ┌─────────────────┼─────────────────┐
-                    ▼                 ▼                 ▼
-             ┌─────────────┐  ┌─────────────┐  ┌──────────────┐
-             │  Evidence   │  │  Analysis   │  │Explainability│
-             │   Layer     │  │    Agent    │  │    Layer     │
-             └─────────────┘  └─────────────┘  └──────────────┘
+```text
+                    ┌──────────────────────┐
+                    │      User / UI       │
+                    └──────────┬───────────┘
+                               │
+                               ▼
+                    ┌──────────────────────┐
+                    │   AI Command Center  │
+                    └──────────┬───────────┘
+                               │
+                               ▼
+                    ┌──────────────────────┐
+                    │     Orchestrator     │
+                    └──────────┬───────────┘
+                               │
+             ┌─────────────────┼─────────────────┐
+             ▼                 ▼                 ▼
+      ┌─────────────┐   ┌─────────────┐   ┌─────────────┐
+      │ Graph Agent │   │Memory Agent │   │ Action Agent│
+      └──────┬──────┘   └──────┬──────┘   └──────┬──────┘
+             │                 │                 │
+             └─────────────────┼─────────────────┘
+                               ▼
+                    ┌──────────────────────┐
+                    │       FalkorDB       │
+                    │  Company Knowledge   │
+                    │       Graph          │
+                    └──────────────────────┘
 ```
 
-## Graph-First Reasoning Pipeline
+If FalkorDB is removed, the core graph-grounded reasoning capability is removed with it.
 
-``` text
+---
+
+# 🏗️ Architecture
+
+```text
+┌───────────────────────────────────────────────────────────────┐
+│                         CompanyOS UI                          │
+│ Dashboard │ AI Command Center │ Graph Explorer │ Actions     │
+└───────────────────────────────┬───────────────────────────────┘
+                                │ HTTP
+                                ▼
+┌───────────────────────────────────────────────────────────────┐
+│                         FastAPI Backend                       │
+│ Chat │ Graph │ Memory │ Actions │ Agents │ MCP                │
+└───────────────────────────────┬───────────────────────────────┘
+                                │
+                                ▼
+┌───────────────────────────────────────────────────────────────┐
+│                         Orchestrator                          │
+│ Intent → Entities → Relationships → Cypher → Validation       │
+│        → FalkorDB → Evidence → Reasoning → Answer             │
+└───────────────┬─────────────────┬─────────────────────────────┘
+                │                 │
+        ┌───────▼───────┐ ┌──────▼────────┐
+        │  Graph Agent  │ │ Memory Agent  │
+        └───────┬───────┘ └──────┬────────┘
+                │                 │
+                └────────┬────────┘
+                         ▼
+                ┌─────────────────┐
+                │    FalkorDB     │
+                │ Graph + Memory  │
+                │ + Agent State   │
+                └────────┬────────┘
+                         ▲
+                  ┌──────┴──────┐
+                  │ Action Agent│
+                  └─────────────┘
+```
+
+## Controlled Graph Query Planning
+
+```text
 User Question
-      ↓
+      │
+      ▼
 Intent Detection
-      ↓
+      │
+      ▼
 Entity Extraction
-      ↓
+      │
+      ▼
 Relationship Planning
-      ↓
+      │
+      ▼
 Cypher Generation
-      ↓
+      │
+      ▼
 Cypher Validation
-      ↓
+      │
+      ▼
 FalkorDB
-      ↓
-Graph Evidence
-      ↓
-Graph Algorithms / Traversal
-      ↓
-Memory + Context
-      ↓
-AI Analysis
-      ↓
-Evidence + Graph Path + Confidence
-      ↓
-Answer / Action
+      │
+      ▼
+Result Graph
+      │
+      ▼
+Evidence Normalization
+      │
+      ▼
+Reasoning
+      │
+      ▼
+Answer + Evidence + Graph Path
 ```
 
-The LLM is used for language understanding and synthesis. **FalkorDB is
-the source of connected company evidence.**
+The query generator uses bounded, entity-constrained Cypher rather than unrestricted graph scans.
 
-------------------------------------------------------------------------
+---
 
-# Why FalkorDB?
+# 🕸️ Graph Ontology
 
-FalkorDB is not a decorative database in CompanyOS.
+## Core entities
 
-It is the central context and reasoning layer.
-
-The company is represented as a graph of nodes and relationships,
-allowing CompanyOS to answer questions that depend on multiple connected
-entities.
-
-Examples:
-
-``` text
-Person ──WORKED_ON──> Project
-Person ──OWNS───────> Service
-Service ──DEPENDS_ON─> Service
-Service ──INVOLVES──> Incident
-Decision ──MADE_BY──> Person
-Migration ──PRODUCES─> Service
+```text
+Company
+Person
+Role
+Team
+Department
+Project
+Document
+Decision
+ADR
+Policy
+SOP
+Conversation
+Message
+Channel
+Repository
+Service
+API
+Database
+Infrastructure
+Deployment
+Incident
+Ticket
 ```
 
-This enables:
+## Core relationships
 
--   Multi-hop reasoning
--   Dependency traversal
--   Ownership discovery
--   Expertise ranking
--   Incident investigation
--   Decision tracing
--   Centrality analysis
--   Connected-component exploration
--   Shortest-path analysis
--   Persistent graph-based memory
--   Shared agent state
-
-If FalkorDB were removed, the core reasoning capability of CompanyOS
-would no longer work.
-
-------------------------------------------------------------------------
-
-# Graph Ontology
-
-## Main Entities
-
-CompanyOS models entities including:
-
--   Company
--   Person
--   Role
--   Team
--   Department
--   Project
--   Document
--   Decision
--   ADR
--   Policy
--   SOP
--   Conversation
--   Message
--   Channel
--   Repository
--   Service
--   API
--   Database
--   Infrastructure
--   Deployment
--   Incident
--   Ticket
-
-## Relationships
-
-Important relationships include:
-
-``` text
-MEMBER_OF
-REPORTS_TO
-WORKED_ON
-OWNS
-DEPENDS_ON
-PRODUCES
-AFFECTS
-AUTHORED
-REFERENCES
-DESCRIBES
-MADE_BY
-SUPERSEDES
-POSTED
-MENTIONS
-CONTRIBUTED_TO
-IMPLEMENTS
-CALLS
-DEPLOYED
+```text
+MEMBER_OF       REPORTS_TO       WORKED_ON
+OWNS            DEPENDS_ON       PRODUCES
+AFFECTS         AUTHORED         REFERENCES
+DESCRIBES       MADE_BY          SUPERSEDES
+POSTED          MENTIONS         CONTRIBUTED_TO
+IMPLEMENTS      CALLS            DEPLOYED
 RESOLVED
 ```
 
-------------------------------------------------------------------------
+These relationships represent organizational structure, technical architecture, knowledge, decisions, and incident history.
 
-# Example Investigation
+---
 
-CompanyOS contains a synthetic NovaTech company graph.
+# 🔎 Multi-Hop Reasoning
 
-A representative investigation asks:
+Example:
 
-> "Checkout failures increased this week. What happened, who worked on
-> the affected system before, what decision caused the current
-> architecture, and who should investigate it?"
-
-The system can establish evidence such as:
-
-``` text
+```text
+Checkout Service
+      │ DEPENDS_ON
+      ▼
 Payment Service
-    ├── INVOLVES ──> Checkout failures increased
-    ├── DEPENDS_ON ─> Checkout Service
-    └── OWNS ──────> Maya Singh
-
+      │
+      ▼
 Payment Service Migration
-    ├── PRODUCES ───> Payment Service
-    └── IMPLEMENTED_BY ─> Architecture Decision
-
+      │ IMPLEMENTED_BY
+      ▼
 Architecture Decision
-    └── MADE_BY ───> Alice Chen
+      │ MADE_BY
+      ▼
+Alice Chen
 ```
 
-CompanyOS deliberately does **not** fabricate relationships that do not
-exist in FalkorDB.
+The reasoning layer distinguishes:
 
-For example, if the graph does not establish a direct:
+- Known facts
+- Graph evidence
+- Inferred connections
+- Unknowns
+- Contradictions
 
-``` text
-Incident ──> Migration
+This prevents unsupported claims from being presented as graph facts.
+
+---
+
+# 📚 Evidence, Provenance & Explainability
+
+Graph-grounded responses can expose:
+
+```text
+Answer
+Evidence
+Graph Path
+Reasoning Summary
+Confidence
+Unknowns
+Contradictions
+Freshness
 ```
 
-relationship, the system reports that as an unknown instead of inventing
-a path.
+Typical provenance fields include:
 
-------------------------------------------------------------------------
-
-# Graph Intelligence
-
-## Expertise Ranking
-
-CompanyOS can rank people based on graph relationships such as:
-
-``` text
-OWNS          → 10
-WORKED_ON     → 8
-CONTRIBUTED_TO→ 7
-INVOLVES      → 5
-AUTHORED      → 4
-MEMBER_OF     → 1
+```text
+source_id
+source_type
+source_url
+document_id
+author
+created_at
+updated_at
+confidence
 ```
 
-This allows questions such as:
+Evidence is normalized, deduplicated, ranked, and bounded before being returned to the reasoning layer.
 
-> "Who knows the most about the payment system?"
+---
 
-to be answered using graph evidence.
+# ⚠️ Contradiction & Freshness Detection
 
-## Dependency Blast Radius
+CompanyOS treats inconsistent data as a useful signal.
 
-For:
+For example:
 
-> "What happens if Payment Service goes down?"
-
-CompanyOS traverses dependency relationships to identify potentially
-affected systems.
-
-## Centrality
-
-Centrality can identify highly connected people and systems in the
-company graph.
-
-## Connected Components
-
-The system can explore the connected neighborhood around an entity.
-
-## Path Discovery
-
-Graph paths expose how entities are connected rather than returning only
-a final answer.
-
-------------------------------------------------------------------------
-
-# Explainability
-
-Every important AI response is designed around:
-
-``` text
-ANSWER
-EVIDENCE
-GRAPH PATH
-CONTRADICTIONS
-CONFIDENCE
-UNKNOWNS
+```text
+Maya Singh ──OWNS──> Payment Service
+Amit Chen  ──OWNS──> Payment Service
 ```
 
-Example:
+Rather than silently choosing one owner, the graph layer can identify this as a data-quality contradiction. Duplicate records are deduplicated while distinct conflicting relationships remain visible.
 
-``` text
-ANSWER:
-Maya Singh is the current owner of Payment Service.
+Evidence timestamps such as `updated_at`, `modified_at`, `created_at`, and `timestamp` can be analyzed as **fresh, stale, or unknown**.
 
-EVIDENCE:
-Payment Service → OWNS → Maya Singh
+---
 
-GRAPH PATH:
-Payment Service → INVOLVES → Checkout failures increased
+# 🧠 Persistent Memory
 
-CONFIDENCE:
-0.91
+CompanyOS stores memory in the graph instead of treating every chat session as isolated.
 
-UNKNOWNS:
-No direct Incident → Migration relationship was established.
+### Episodic memory
+What happened during a previous interaction or investigation.
+
+### Semantic memory
+Facts learned about the company and its entities.
+
+### Procedural memory
+Reusable procedures, workflows, and operational knowledge.
+
+```text
+Conversation → Memory → Future Question → Graph + Memory → Better Context
 ```
 
-The system exposes concise, auditable reasoning rather than private
-model chain-of-thought.
+---
 
-------------------------------------------------------------------------
+# 🤖 Multi-Agent Coordination
 
-# Persistent Memory
+Graph-native coordination uses persistent entities such as:
 
-CompanyOS uses FalkorDB as a persistent context layer for agents.
-
-Memory is organized conceptually into:
-
-``` text
-Episodic Memory
-    ↓
-What happened?
-
-Semantic Memory
-    ↓
-What do we know?
-
-Procedural Memory
-    ↓
-How should we do it?
+```text
+AgentRun
+AgentTask
+AgentEvent
+AgentMessage
 ```
 
-Conversation context, useful evidence, investigation outcomes, and agent
-state can remain available across sessions.
+Conceptually:
 
-------------------------------------------------------------------------
-
-# Agent Architecture
-
-CompanyOS separates responsibilities between specialized agents.
-
-``` text
-Orchestrator
- ├── Query Planner
- ├── Graph Intelligence Agent
- ├── Graph Path Engine
- ├── Memory Agent
- ├── Evidence Manager
- ├── Analysis Agent
- ├── Explainability Agent
- └── Action Agent
+```text
+AgentRun
+ ├── HAS_TASK ──> AgentTask
+ ├── HAS_EVENT ──> AgentEvent
+ └── HAS_MESSAGE ──> AgentMessage
 ```
 
-The graph acts as the shared context layer.
+The coordination layer supports run creation, task creation/update, events, messages, pending tasks, status, resumption, and agent handoff.
 
-This prevents every agent from maintaining an isolated view of company
-knowledge.
+---
 
-------------------------------------------------------------------------
+# 🔌 MCP / Graph Tools
 
-# Security
+The graph tool layer includes:
 
-CompanyOS includes security controls designed around graph access:
-
--   Authenticated user context
--   Tenant isolation
--   Graph access authorization
--   Read/write separation
--   Cypher validation
--   Restricted mutation queries
--   Prompt-injection awareness
--   Security headers
--   Request IDs
--   Action authorization
--   Audit-oriented action history
-
-Read-only graph queries are validated before execution.
-
-Dangerous Cypher operations such as unrestricted `CREATE`, `DELETE`,
-`DROP`, `MERGE`, `SET`, `REMOVE`, `LOAD CSV`, and sensitive procedure
-calls are blocked by the validation layer.
-
-------------------------------------------------------------------------
-
-# Technology Stack
-
-## Frontend
-
--   Next.js
--   React
--   TypeScript
--   Tailwind CSS
--   Interactive graph visualization
--   `react-force-graph-2d`
-
-## Backend
-
--   Python
--   FastAPI
--   Pydantic
--   Uvicorn
-
-## AI
-
--   Google Gemini
--   Agent orchestration
--   Natural-language query planning
--   Graph-grounded reasoning
-
-## Graph
-
--   FalkorDB
--   Redis-compatible graph infrastructure
--   Cypher
-
-## Infrastructure
-
--   Docker
--   Docker Compose
-
-------------------------------------------------------------------------
-
-# Project Structure
-
-``` text
-companyOs/
-│
-├── backend/
-│   ├── agents/
-│   │   ├── orchestrator.py
-│   │   ├── query_planner.py
-│   │   ├── cypher_generator.py
-│   │   ├── analysis_agent.py
-│   │   ├── graph_intelligence_agent.py
-│   │   ├── explainability.py
-│   │   └── hero_reasoning.py
-│   │
-│   ├── api/
-│   │   ├── chat.py
-│   │   ├── graph.py
-│   │   ├── memory.py
-│   │   ├── algorithms.py
-│   │   ├── evidence.py
-│   │   ├── actions.py
-│   │   ├── action_history.py
-│   │   └── path.py
-│   │
-│   ├── graph/
-│   │   ├── client.py
-│   │   ├── schema.py
-│   │   ├── queries.py
-│   │   ├── path_engine.py
-│   │   ├── evidence.py
-│   │   └── algorithms.py
-│   │
-│   ├── memory/
-│   │   └── memory_agent.py
-│   │
-│   ├── security/
-│   │   ├── context.py
-│   │   ├── tenant.py
-│   │   ├── middleware.py
-│   │   ├── headers.py
-│   │   └── cypher_validator.py
-│   │
-│   ├── tools/
-│   │   └── query_tools.py
-│   │
-│   ├── data_generator/
-│   │   └── novatech_generator.py
-│   │
-│   ├── tests/
-│   ├── main.py
-│   └── requirements.txt
-│
-├── frontend/
-│   ├── app/
-│   │   ├── page.tsx
-│   │   └── globals.css
-│   │
-│   ├── components/
-│   │   └── GraphExplorer.tsx
-│   │
-│   └── package.json
-│
-├── docker-compose.yml
-├── .env
-└── README.md
-```
-
-------------------------------------------------------------------------
-
-# Prerequisites
-
-Install:
-
--   Docker Desktop
--   Python 3.11+
--   Node.js 20+
--   npm
--   Git
-
-You also need a Gemini API key if using Gemini for the AI reasoning
-layer.
-
-------------------------------------------------------------------------
-
-# Quick Start
-
-## 1. Clone the repository
-
-``` powershell
-git clone <YOUR_PUBLIC_GITHUB_REPOSITORY>
-cd companyOs
-```
-
-## 2. Start FalkorDB
-
-``` powershell
-docker compose up -d
-```
-
-Verify:
-
-``` powershell
-docker ps
-```
-
-You should see the FalkorDB container running on port `6379`.
-
-------------------------------------------------------------------------
-
-# Backend Setup
-
-``` powershell
-cd backend
-
-python -m venv .venv
-
-.\.venv\Scripts\Activate.ps1
-
-pip install -r requirements.txt
-```
-
-Create/update `.env`:
-
-``` env
-FALKORDB_HOST=localhost
-FALKORDB_PORT=6379
-FALKORDB_USERNAME=
-FALKORDB_PASSWORD=
-
-GEMINI_API_KEY=YOUR_GEMINI_API_KEY
-LLM_PROVIDER=gemini
-LLM_MODEL=gemini-3.8-flash
-
-NEXT_PUBLIC_API_URL=http://localhost:8000
-```
-
-Start the backend:
-
-``` powershell
-uvicorn main:app --reload --port 8000
-```
-
-Backend:
-
-``` text
-http://127.0.0.1:8000
-```
-
-Health check:
-
-``` text
-http://127.0.0.1:8000/health
-```
-
-------------------------------------------------------------------------
-
-# Initialize the Demo Graph
-
-Use the demo initialization endpoint:
-
-``` powershell
-Invoke-RestMethod `
-  -Method POST `
-  -Uri "http://127.0.0.1:8000/api/demo/initialize"
-```
-
-This initializes the graph schema and generates the NovaTech demo
-company data.
-
-The synthetic graph contains approximately:
-
-``` text
-126 People
-24 Teams
-32 Projects
-54 Services
-100 Documents
-102 Incidents
-202 Decisions
-1338 Relationships
-```
-
-Numbers may change as the generator evolves.
-
-------------------------------------------------------------------------
-
-# Frontend Setup
-
-Open another PowerShell terminal:
-
-``` powershell
-cd frontend
-
-npm install
-```
-
-Create:
-
-``` text
-frontend/.env.local
-```
-
-with:
-
-``` env
-NEXT_PUBLIC_API_URL=http://127.0.0.1:8000
-```
-
-Start the frontend:
-
-``` powershell
-npm run dev
-```
-
-Open:
-
-``` text
-http://localhost:3000
-```
-
-------------------------------------------------------------------------
-
-# Example Questions
-
-Try:
-
-``` text
-Who knows the most about the payment system?
-```
-
-``` text
-What happens if Payment Service goes down?
-```
-
-``` text
-What is the blast radius of Payment Service?
-```
-
-``` text
-Why was the payment architecture changed?
-```
-
-``` text
-Who owns Payment Service?
-```
-
-``` text
-Who should investigate the checkout failures?
-```
-
-``` text
-What systems are connected to Payment Service?
-```
-
-``` text
-What are the most connected systems?
-```
-
-------------------------------------------------------------------------
-
-# API
-
-## Chat
-
-``` http
-POST /api/chat
-```
-
-Example:
-
-``` json
-{
-  "question": "Who owns Payment Service?",
-  "graph_name": "novatech"
-}
-```
-
-The response contains fields such as:
-
-``` json
-{
-  "success": true,
-  "answer": "...",
-  "plan": {},
-  "cypher": "...",
-  "entities": [],
-  "graph_evidence": [],
-  "graph_intelligence": {},
-  "graph_path": {},
-  "explanation": {},
-  "memory": {},
-  "provenance": [],
-  "freshness": {},
-  "contradictions": [],
-  "confidence": 0.91,
-  "evidence_count": 3,
-  "retrieval_mode": "graph_first",
-  "graph_first": true
-}
-```
-
-## Graph
-
-``` text
-POST /api/graph/query
-POST /api/graph/traverse
-GET  /api/graph/entity/{id}
-POST /api/graph/path
-```
-
-## Algorithms
-
-``` text
-GET /api/graph/algorithms/expertise
-GET /api/graph/algorithms/blast-radius
-GET /api/graph/algorithms/dependencies
-GET /api/graph/algorithms/centrality
-GET /api/graph/algorithms/people-centrality
-GET /api/graph/algorithms/systems
-GET /api/graph/algorithms/component/{entity_name}
-GET /api/graph/algorithms/relationships
-```
-
-------------------------------------------------------------------------
-
-# MCP-Style Graph Tools
-
-The architecture is designed around graph tools such as:
-
-``` text
+```text
 falkor_search
 falkor_traverse
 falkor_cypher
@@ -834,260 +368,708 @@ falkor_subgraph
 falkor_write
 ```
 
-These tools expose graph capabilities to agents while keeping FalkorDB
-as the underlying source of connected context.
+Graph tools follow the application's authorization and Cypher safety model. Arbitrary graph mutation is not treated as an unrestricted client capability.
 
-------------------------------------------------------------------------
+---
 
-# Data Model Example
+# 📊 Graph Algorithms
 
-A simplified graph can look like:
+CompanyOS supports or is designed around:
 
-``` text
-(:Person)-[:OWNS]->(:Service)
+- Centrality
+- Shortest path
+- Community detection
+- Connected components
+- PageRank-style ranking
+- Dependency traversal
+- Neighborhood exploration
 
-(:Service)-[:DEPENDS_ON]->(:Service)
+Example: **"Who knows the most about Payment Service?"** can use graph relationships such as `OWNS`, `WORKED_ON`, and `CONTRIBUTED_TO` instead of relying only on text similarity.
 
-(:Service)-[:INVOLVES]->(:Incident)
+---
 
-(:Decision)-[:MADE_BY]->(:Person)
+# 🔐 Security
 
-(:Migration)-[:PRODUCES]->(:Service)
+## Tenant isolation
 
-(:Migration)-[:IMPLEMENTED_BY]->(:Decision)
+Each company uses its own graph namespace:
 
-(:Person)-[:WORKED_ON]->(:Project)
+```text
+Company A → graph_a
+Company B → graph_b
+Company C → graph_c
 ```
 
-------------------------------------------------------------------------
+Cross-tenant graph access is rejected.
 
-# Design Principles
+## Permissions
 
-## 1. Graph First
+Example permissions include:
 
-Important organizational answers should be grounded in FalkorDB
-evidence.
+```text
+graph:read
+graph:write
+memory:read
+memory:write
+actions:read
+actions:create
+```
 
-## 2. Evidence Over Guessing
+## Cypher protection
 
-The system distinguishes observed graph relationships from inference.
+The validator blocks dangerous operations including:
 
-## 3. Explainability by Default
+```text
+CREATE, DELETE, DETACH DELETE, SET, REMOVE, MERGE, DROP,
+LOAD CSV, CALL DBMS, CALL DB, CALL APOC, FOREACH,
+ALTER, GRANT, REVOKE
+```
 
-Answers expose evidence, graph paths, confidence, contradictions, and
-unknowns.
+It also rejects multiple statements, comment-based manipulation, oversized queries, and inappropriate non-read graph operations.
 
-## 4. No Fabricated Relationships
+## Action authorization
 
-Missing edges remain unknown.
+Action actors are derived from the authenticated user context rather than trusted from a client-supplied actor ID.
 
-## 5. Agents Share Graph Context
+---
 
-FalkorDB provides a common context layer for multiple agents.
+# 🏢 NovaTech Demo Dataset
 
-## 6. Actions Become Knowledge
+The project includes a synthetic NovaTech company graph.
 
-Investigation actions and outcomes can be represented in the graph.
+| Entity | Count |
+|---|---:|
+| People | 126 |
+| Teams | 24 |
+| Projects | 32 |
+| Services | 54 |
+| Documents | 100 |
+| Incidents | 102 |
+| Decisions | 202 |
+| Relationships | 1338 |
 
-------------------------------------------------------------------------
+The dataset is synthetic and designed for graph reasoning demonstrations.
 
-# Testing
+---
 
-Backend tests can be run with:
+# 🎯 Demo Questions
 
-``` powershell
-cd backend
+The primary demo flow includes:
 
+1. **Who knows the most about the payment system?** — expertise and ownership.
+2. **Why was the payment architecture changed?** — decision and implementation lineage.
+3. **What happens if Payment Service goes down?** — dependency and blast radius.
+4. **Who should investigate the checkout failures?** — incident and ownership context.
+5. **Checkout failures increased this week. What happened, who worked on the affected system before, what decision caused the current architecture, and who should investigate it?** — combined multi-hop investigation.
+
+The latest validated demo run completed **5/5 questions successfully**.
+
+---
+
+# 🖥️ Product Interface
+
+The frontend is designed as a futuristic enterprise AI interface with a dark, graph-centric visual language.
+
+Core experiences:
+
+```text
+Dashboard
+AI Command Center
+Graph Explorer
+Reasoning Panel
+Memory
+Actions
+```
+
+The interface emphasizes graph visualization, evidence paths, relationship exploration, confidence/unknown states, and auditable actions.
+
+---
+
+# 🚀 Getting Started
+
+## Prerequisites
+
+- Docker Desktop
+- Python 3.11+
+- Node.js / npm
+- Git
+- Gemini API key (or another configured LLM provider)
+
+## 1. Start FalkorDB
+
+From the project root:
+
+```powershell
+docker compose up -d
+docker ps
+```
+
+FalkorDB is exposed on `localhost:6379`.
+
+## 2. Backend setup
+
+```powershell
+cd C:\Users\KIIT\Downloads\companyOs\backend
+python -m venv .venv
 .\.venv\Scripts\Activate.ps1
-
-pytest -q
+pip install -r requirements.txt
 ```
 
-Individual phase verification scripts can also be run when present:
+## 3. Environment variables
 
-``` powershell
-python test_phase18.py
-python test_phase19.py
+Example:
+
+```env
+FALKORDB_HOST=localhost
+FALKORDB_PORT=6379
+FALKORDB_USERNAME=
+FALKORDB_PASSWORD=
+
+LLM_PROVIDER=gemini
+LLM_MODEL=gemini-3.8-flash
+GEMINI_API_KEY=YOUR_GEMINI_API_KEY
+
+OPENAI_API_KEY=
+ANTHROPIC_API_KEY=
 ```
 
-Frontend production build:
+Never commit real secrets.
 
-``` powershell
-cd frontend
-npm run build
+## 4. Seed NovaTech
+
+```powershell
+cd C:\Users\KIIT\Downloads\companyOs\backend
+python seed_novatech.py
 ```
 
-------------------------------------------------------------------------
+Verify the graph:
 
-# Security Notes
-
-Do not commit secrets.
-
-Never commit:
-
-``` text
-.env
-.env.local
-*.key
-*.pem
+```powershell
+python -c "from graph.client import graph_client; print(graph_client.query('MATCH (n) RETURN count(n) AS count', 'novatech').result_set)"
 ```
 
-Use environment variables for API keys and credentials.
+## 5. Start the backend
 
-For production deployments, replace demo authentication with a real
-identity provider and enforce strict tenant authorization.
+```powershell
+uvicorn main:app --reload --port 8000
+```
 
-------------------------------------------------------------------------
+Backend:
 
-# Hackathon Demo Flow
+```text
+http://127.0.0.1:8000
+```
 
-A recommended three-minute demo:
+Health endpoint:
 
-### 1. Show the company graph
+```text
+http://127.0.0.1:8000/health
+```
 
-Open the CompanyOS Command Center and demonstrate the connected graph.
+## 6. Start the frontend
 
-### 2. Ask:
+```powershell
+cd C:\Users\KIIT\Downloads\companyOs\frontend
+npm install
+npm run dev
+```
 
-> Who knows the most about our payment system?
+Set:
 
-Show expertise ranking and graph evidence.
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8000
+```
 
-### 3. Ask:
+---
 
-> Why was the payment architecture changed?
+# 🧪 Testing
 
-Show the decision → implementation → service relationship.
+Run the full backend suite:
 
-### 4. Ask:
+```powershell
+cd C:\Users\KIIT\Downloads\companyOs\backend
+pytest -v
+```
 
-> What happens if Payment Service goes down?
+Phase 28 E2E coverage includes:
 
-Show dependency traversal and blast radius.
+```text
+Health
+Graph connectivity
+NovaTech graph
+Graph query
+Chat orchestrator
+Payment multi-hop path
+Payment ownership
+Agent run creation
+Memory endpoint
+Actions endpoint
+Tenant isolation
+Cypher write protection
+Multiple statement protection
+Read-only authorization
+Coordination graph structure
+```
 
-### 5. Ask:
+Validated result: **15 passed**.
 
-> Who should investigate?
+## Performance
 
-Show current ownership and relevant expertise.
+```powershell
+pytest .\tests\test_phase29_performance.py -v -s
+```
 
-### 6. Create an investigation
+Validated results:
 
-Create an investigation action associated with the affected service and
-incident.
+```text
+Graph query latency:          ~0.0023s
+Payment dependency latency:   ~0.0022s
+Ownership ranking latency:    ~0.0027s
+Bounded multi-hop latency:    ~0.0154s
+Chat latency:                 ~11.36s
+Bounded graph results:        50 rows maximum in the test
+```
 
-### 7. Show persistence
+The raw FalkorDB operations are fast; natural-language chat latency is primarily LLM/orchestration work.
 
-Return to the conversation and demonstrate that the system retains
-useful investigation context.
+---
 
-### 8. Finish with the graph
+# 🔍 Example Cypher
 
-Show the actual FalkorDB relationship path behind the answer.
+## Payment Service ownership/expertise
 
-------------------------------------------------------------------------
+```cypher
+MATCH (service:Service {name: 'Payment Service'})
+OPTIONAL MATCH
+    (person:Person)-[
+        r:OWNS|WORKED_ON|CONTRIBUTED_TO
+    ]->(service)
+RETURN DISTINCT
+    person.name AS person,
+    type(r) AS relationship,
+    service.name AS entity
+LIMIT 25
+```
 
-# What Makes CompanyOS Different?
+## Architecture decision lineage
 
-Traditional enterprise search often answers:
+```cypher
+MATCH (service:Service {name:'Payment Service'})
+OPTIONAL MATCH
+    (migration:Project)-[migration_rel:PRODUCES|IMPLEMENTS|AFFECTS]->(service)
+OPTIONAL MATCH
+    (migration)-[decision_rel:IMPLEMENTED_BY|PRODUCES|AFFECTS]->(decision:Decision)
+OPTIONAL MATCH
+    (decision)-[person_rel:MADE_BY|AUTHORED|REFERENCES]->(person:Person)
+RETURN DISTINCT
+    migration.name AS migration,
+    type(migration_rel) AS migration_relationship,
+    decision.title AS decision,
+    type(decision_rel) AS decision_relationship,
+    person.name AS person,
+    type(person_rel) AS person_relationship
+LIMIT 25
+```
 
-> "Here are some documents containing your keywords."
+The application constrains generated queries by intent, entities, safety validation, and result bounds before execution.
+
+---
+
+# 🔄 API Overview
+
+Important API areas:
+
+### Chat
+
+```text
+POST /api/chat
+```
+
+### Graph
+
+```text
+/api/graph/query
+/api/graph/traverse
+/api/graph/entity/{id}
+/api/graph/path
+```
+
+### Companies
+
+```text
+/api/companies
+/api/companies/{id}/ingest
+/api/companies/{id}/overview
+/api/companies/{id}/graph
+```
+
+### Memory
+
+```text
+/api/memory/*
+```
+
+### Actions
+
+```text
+/api/actions/*
+```
+
+### Agent coordination
+
+```text
+/api/agents/runs
+/api/agents/runs/{run_id}
+/api/agents/runs/{run_id}/tasks
+/api/agents/runs/{run_id}/events
+/api/agents/runs/{run_id}/resume
+```
+
+### MCP
+
+```text
+/api/mcp/*
+```
+
+---
+
+# 🗂️ Project Structure
+
+Representative structure:
+
+```text
+companyOs/
+│
+├── backend/
+│   ├── agents/
+│   │   ├── orchestrator.py
+│   │   ├── query_planner.py
+│   │   ├── cypher_generator.py
+│   │   ├── llm.py
+│   │   ├── contradiction_agent.py
+│   │   ├── freshness_agent.py
+│   │   ├── coordination.py
+│   │   └── agent_handoff.py
+│   │
+│   ├── api/
+│   │   ├── chat.py
+│   │   ├── graph.py
+│   │   ├── memory.py
+│   │   ├── actions.py
+│   │   ├── agents.py
+│   │   └── mcp.py
+│   │
+│   ├── graph/
+│   │   ├── client.py
+│   │   ├── evidence.py
+│   │   └── contradictions.py
+│   │
+│   ├── security/
+│   │   ├── context.py
+│   │   ├── tenant.py
+│   │   └── cypher_validator.py
+│   │
+│   ├── mcp/
+│   │   ├── registry.py
+│   │   ├── graph_tools.py
+│   │   └── tool_agent.py
+│   │
+│   ├── data_generator/
+│   │   └── novatech_generator.py
+│   │
+│   ├── tests/
+│   │   ├── conftest.py
+│   │   ├── test_phase28_e2e.py
+│   │   └── test_phase29_performance.py
+│   │
+│   ├── seed_novatech.py
+│   └── main.py
+│
+├── frontend/
+├── docker-compose.yml
+├── .env
+└── README.md
+```
+
+---
+
+# 🧭 Engineering Principles
+
+1. **Graph first** — relationships are part of the answer.
+2. **Evidence first** — conclusions should be traceable.
+3. **Unknowns are valid** — unsupported facts are not invented.
+4. **Bounded reasoning** — queries and evidence are bounded.
+5. **Secure by default** — tenant isolation, authorization, and Cypher validation.
+6. **Persistent state** — memory and coordination survive process boundaries.
+7. **Auditable actions** — investigations leave graph state behind.
+8. **Visible data quality** — contradictions and stale evidence are surfaced.
+
+---
+
+# 🏆 Hackathon Track Alignment
+
+## Company Brain
+
+CompanyOS is designed as a **Company Brain** that connects:
+
+```text
+People + Teams + Projects + Services + Incidents
++ Decisions + Documents + Memory + Actions
+```
+
+Traditional enterprise search asks:
+
+> Find documents mentioning Payment Service.
 
 CompanyOS aims to answer:
 
-> "Here is what happened, how the entities are connected, who is
-> involved, why the decision was made, what could be affected, and here
-> is the graph evidence supporting the answer."
+> Who owns Payment Service, who worked on it before, which systems depend on it, what decision created its current architecture, which incidents affected it, and what should we investigate next?
 
-The difference is the **relationship layer**.
+The graph is the central context layer that makes this possible.
 
-------------------------------------------------------------------------
+---
 
-# Learnings
+# 🎬 3-Minute Demo Script
 
-Building CompanyOS highlighted several important lessons:
+### 0:00 — Problem
 
-### Relationships are valuable data
+> Company knowledge is fragmented across people, systems, documents, incidents, and decisions.
 
-Many enterprise questions are relationship questions rather than
-document-search questions.
+### 0:20 — Expertise
 
-### The LLM should not own the truth
+Ask:
 
-The graph should establish what is known. The LLM should interpret and
-explain it.
+```text
+Who knows the most about the payment system?
+```
 
-### Graph schemas matter
+Show people, relationships, and evidence.
 
-Useful relationships such as `OWNS`, `DEPENDS_ON`, `WORKED_ON`,
-`MADE_BY`, and `AFFECTS` make downstream reasoning much stronger.
+### 0:50 — Decision lineage
 
-### Unknowns are important
+Ask:
 
-A trustworthy system should say when the graph cannot establish a
-relationship.
+```text
+Why was the payment architecture changed?
+```
 
-### Explainability must be architectural
+Show:
 
-Evidence needs to flow from the graph through retrieval, reasoning, and
-UI.
+```text
+Payment Service
+      ↑
+Payment Service Migration
+      │
+      ▼
+Architecture Decision
+      │
+      ▼
+Alice Chen
+```
 
-------------------------------------------------------------------------
+Explain that the graph distinguishes known implementation history from an unsupported rationale.
 
-# Roadmap
+### 1:20 — Blast radius
 
-Future improvements include:
+Ask:
 
--   GitHub ingestion
--   Slack / Teams ingestion
--   Continuous graph synchronization
--   More temporal reasoning
--   Advanced graph algorithms
--   Richer MCP integrations
--   Automated incident investigation
--   Larger evaluation datasets
--   Enterprise authentication
--   Production-scale observability
--   Advanced contradiction resolution
+```text
+What happens if Payment Service goes down?
+```
 
-------------------------------------------------------------------------
+Show dependency relationships.
 
-# Hackathon Track
+### 1:50 — Investigation
 
-**Track:** Company Brain
+Ask:
 
-CompanyOS is designed around the idea that a company's knowledge should
-be represented as a connected graph and used by agents for reasoning,
-memory, investigation, and action.
+```text
+Who should investigate the checkout failures?
+```
 
-------------------------------------------------------------------------
+Show incident evidence, ownership context, and explicit uncertainty when no official investigator is recorded.
 
-# AI Disclosure
+### 2:15 — Action
 
-AI coding assistants and LLMs were used during development for
-implementation assistance, debugging, architecture iteration,
-documentation, and code review.
+Create an investigation task and show that it becomes auditable graph state.
 
-The project architecture, graph model, queries, agent flow, testing,
-verification, and integration were reviewed and adapted as part of the
-development process.
+### 2:35 — Memory
 
-------------------------------------------------------------------------
+Ask:
 
-# Author
+```text
+What did we discover?
+```
+
+Demonstrate persistent investigation context.
+
+### 2:50 — Close
+
+> CompanyOS doesn't just search company knowledge. It follows the relationships between people, systems, incidents, decisions, and actions to build an evidence-backed answer.
+
+---
+
+# 📈 Evaluation Philosophy
+
+The system is designed around:
+
+```text
+Multi-hop reasoning
+Memory
+Ownership
+Dependencies
+Decisions
+Contradictions
+Actions
+```
+
+A useful evaluation set can contain:
+
+```text
+30 multi-hop questions
+20 memory questions
+20 ownership questions
+20 dependency questions
+10 decision questions
+10 contradiction questions
+10 action questions
+```
+
+Evaluation should measure whether the system:
+
+1. Finds relevant graph entities.
+2. Traverses correct relationships.
+3. Produces evidence.
+4. Preserves uncertainty.
+5. Detects contradictions.
+6. Uses persistent context.
+7. Produces safe, auditable actions.
+
+---
+
+# 🛠️ Demo Reliability Checklist
+
+Before a live demo:
+
+```powershell
+docker ps
+```
+
+Then:
+
+```powershell
+curl http://127.0.0.1:8000/health
+```
+
+Run E2E tests:
+
+```powershell
+pytest .\tests\test_phase28_e2e.py -v
+```
+
+Run performance validation:
+
+```powershell
+pytest .\tests\test_phase29_performance.py -v -s
+```
+
+Run the demo:
+
+```powershell
+python demo_phase30.py
+```
+
+Latest validated demo status:
+
+```text
+5 questions
+5 successful
+0 failed
+```
+
+---
+
+# 🤖 AI-Assisted Development
+
+AI coding assistants were used during development. Generated code was iteratively tested and verified against the actual CompanyOS architecture, FalkorDB behavior, security model, APIs, graph reasoning, and test suite.
+
+Key areas were manually reviewed and validated, including:
+
+- Graph ontology
+- Cypher generation
+- Tenant isolation
+- Cypher safety
+- Evidence normalization
+- Contradiction detection
+- Freshness analysis
+- Agent coordination
+- Memory persistence
+- Action authorization
+- End-to-end tests
+- Demo reliability
+
+The intent is to use AI assistance while maintaining understanding and verification of the implementation.
+
+---
+
+# 📜 Data & Privacy
+
+The NovaTech dataset is synthetic. No private company dataset is required for the demo.
+
+Do not commit:
+
+```text
+.env
+API keys
+credentials
+private datasets
+production secrets
+```
+
+Use environment variables for secrets.
+
+---
+
+# 🔮 Future Extensions
+
+Potential extensions include:
+
+- Document and enterprise connector ingestion
+- Automatic graph extraction
+- Richer graph algorithms
+- Automated incident investigation
+- Dependency-aware incident prediction
+- Decision lineage visualization
+- Organizational knowledge maps
+- Human approval workflows
+- Temporal graph reasoning
+- Fine-grained graph authorization
+- Production-scale graph partitioning
+
+---
+
+# 👤 Author
 
 **Suman Kumar**
 
-GitHub: https://github.com/sumankr4edu
+GitHub: https://github.com/sumankr4edu/vibecodearenaai
 
 LinkedIn: https://www.linkedin.com/in/suman-kumar-8698ab249/
 
-------------------------------------------------------------------------
+---
 
-# Final Message
+# ⭐ Final Takeaway
 
-> **CompanyOS --- Your company's knowledge, connected.**
->
-> Ask your company.\
-> Follow the graph.\
-> Get the evidence.
+> **CompanyOS turns a company's scattered knowledge into a connected, explainable graph that AI agents can actually reason over.**
+
+```text
+Don't just ask the company.
+
+Follow the graph.
+Get the evidence.
+Understand the context.
+Remember what happened.
+Act on what you discover.
+```
+
+**CompanyOS — Your company's knowledge, connected.**
